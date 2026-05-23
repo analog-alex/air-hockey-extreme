@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
-import handleUrl from '../../assets/handle.png?url';
-import puckUrl from '../../assets/puck.png?url';
+import handleUrl from '../../assets/handle.svg?url';
+import puckUrl from '../../assets/puck.svg?url';
 import rinkUrl from '../../assets/rink.png?url';
 import { COLORS } from '../constants/colors';
 import { GAME_HEIGHT, GAME_WIDTH } from '../constants/gameplay';

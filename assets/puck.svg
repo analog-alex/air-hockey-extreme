@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Turbo Puck Arena puck">
+  <defs>
+    <radialGradient id="body" cx="48%" cy="42%" r="58%">
+      <stop offset="0%" stop-color="#4b4e53"/>
+      <stop offset="52%" stop-color="#202329"/>
+      <stop offset="82%" stop-color="#0b0d11"/>
+      <stop offset="100%" stop-color="#030407"/>
+    </radialGradient>
+    <radialGradient id="top" cx="46%" cy="35%" r="57%">
+      <stop offset="0%" stop-color="#565a61"/>
+      <stop offset="58%" stop-color="#2a2d33"/>
+      <stop offset="100%" stop-color="#12151a"/>
+    </radialGradient>
+    <linearGradient id="blueOrange" x1="0%" x2="100%" y1="50%" y2="50%">
+      <stop offset="0%" stop-color="#38d9ff"/>
+      <stop offset="42%" stop-color="#7ff0ff"/>
+      <stop offset="52%" stop-color="#ffffff"/>
+      <stop offset="61%" stop-color="#ffb037"/>
+      <stop offset="100%" stop-color="#ff5a16"/>
+    </linearGradient>
+    <linearGradient id="blueOrangeDark" x1="0%" x2="100%" y1="50%" y2="50%">
+      <stop offset="0%" stop-color="#0ba8f0"/>
+      <stop offset="48%" stop-color="#1ce3ff"/>
+      <stop offset="52%" stop-color="#ffdd7a"/>
+      <stop offset="100%" stop-color="#ff5a16"/>
+    </linearGradient>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="9" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="hardShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity="0.75"/>
+    </filter>
+    <pattern id="hex" width="34" height="29.44" patternUnits="userSpaceOnUse">
+      <path d="M8.5 0h17l8.5 14.72-8.5 14.72h-17L0 14.72Z" fill="none" stroke="#0b0d11" stroke-width="2" opacity="0.42"/>
+    </pattern>
+    <clipPath id="faceClip">
+      <circle cx="512" cy="470" r="282"/>
+    </clipPath>
+    <path id="arcBlue" d="M178 538a338 338 0 0 1 610-210"/>
+    <path id="arcOrange" d="M846 386a338 338 0 0 1-590 276"/>
+  </defs>
+
+  <circle cx="512" cy="512" r="470" fill="#020305" opacity="0.1"/>
+  <g filter="url(#hardShadow)">
+    <circle cx="512" cy="512" r="432" fill="url(#body)"/>
+    <circle cx="512" cy="488" r="378" fill="#07090d"/>
+    <circle cx="512" cy="470" r="340" fill="url(#top)"/>
+    <circle cx="512" cy="470" r="306" fill="#25282e"/>
+    <g clip-path="url(#faceClip)" opacity="0.9">
+      <rect x="196" y="154" width="632" height="632" fill="url(#hex)"/>
+      <circle cx="390" cy="265" r="250" fill="#ffffff" opacity="0.04"/>
+    </g>
+
+    <circle cx="512" cy="470" r="312" fill="none" stroke="#050608" stroke-width="28"/>
+    <circle cx="512" cy="470" r="298" fill="none" stroke="url(#blueOrange)" stroke-width="16" filter="url(#softGlow)"/>
+    <circle cx="512" cy="470" r="298" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.5"/>
+
+    <g stroke-linecap="round" fill="none" stroke-width="19" filter="url(#softGlow)">
+      <path d="M168 610c-8 82 44 160 126 189" stroke="#34d8ff"/>
+      <path d="M856 610c8 82-44 160-126 189" stroke="#ff6b18"/>
+      <path d="M380 820h120" stroke="#38d9ff"/>
+      <path d="M524 820h120" stroke="#ff7a17"/>
+    </g>
+
+    <g transform="translate(512 480)" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M-128-160 0 72" stroke="#3fdcff" stroke-width="22"/>
+      <path d="M128-160 0 72" stroke="#ff7418" stroke-width="22"/>
+      <path d="M-172 112h120c34 0 60 28 60 60v14h-180z" fill="#14181f" stroke="#43dcff" stroke-width="16"/>
+      <path d="M52 112h120v74H-8v-14c0-32 26-60 60-60z" fill="#14181f" stroke="#ff7418" stroke-width="16"/>
+    </g>
+
+    <g transform="translate(512 470)" font-family="Arial Black, Impact, sans-serif" text-anchor="middle">
+      <rect x="-258" y="-70" width="516" height="144" rx="18" fill="#0b0d12" stroke="#000" stroke-width="10"/>
+      <text y="-12" font-size="94" fill="#47dfff" stroke="#010207" stroke-width="12" paint-order="stroke" letter-spacing="2">TURBO</text>
+      <text y="56" font-size="44" fill="#ffbb31" stroke="#010207" stroke-width="9" paint-order="stroke" letter-spacing="3">PUCK ARENA</text>
+    </g>
+
+    <g transform="translate(512 855)" font-family="Arial Black, Impact, sans-serif" text-anchor="middle">
+      <text y="0" font-size="52" fill="#37d9ff" stroke="#020305" stroke-width="8" paint-order="stroke" letter-spacing="3">TURBO</text>
+      <text y="44" font-size="28" fill="#ffbd32" stroke="#020305" stroke-width="6" paint-order="stroke" letter-spacing="2">PUCK ARENA</text>
+    </g>
+
+    <circle cx="512" cy="512" r="432" fill="none" stroke="#090b10" stroke-width="34"/>
+    <circle cx="512" cy="512" r="454" fill="none" stroke="#555961" stroke-width="18" opacity="0.65"/>
+    <circle cx="512" cy="512" r="470" fill="none" stroke="#020305" stroke-width="22"/>
+  </g>
+</svg>

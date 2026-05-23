@@ -3,9 +3,14 @@ import { GAMEPLAY, TABLE } from '../constants/gameplay';
 import { Paddle } from '../objects/Paddle';
 import { Puck } from '../objects/Puck';
 
+type CpuState = 'guard' | 'intercept' | 'counter' | 'recover';
+
 export class CpuController {
   private targetX = TABLE.x + TABLE.width - 145;
   private targetY = TABLE.y + TABLE.height / 2;
+  private state: CpuState = 'guard';
+  private recoveryTimer = 0;
+  private aimError = 0;
 
   constructor(
     private readonly paddle: Paddle,
@@ -13,14 +18,79 @@ export class CpuController {
   ) {}
 
   update(deltaSeconds: number): void {
-    const puckInCpuHalf = this.puck.x > GAMEPLAY.cpuHalfMinX;
-    const desiredX = puckInCpuHalf ? this.puck.x + 92 : TABLE.x + TABLE.width - 145;
-    const desiredY = puckInCpuHalf ? this.puck.y : TABLE.y + TABLE.height / 2;
+    this.recoveryTimer = Math.max(0, this.recoveryTimer - deltaSeconds);
+    this.state = this.pickState();
+
+    const target = this.getTargetForState();
     const lerpAmount = 1 - Math.pow(GAMEPLAY.cpuReaction, deltaSeconds * 8);
 
-    this.targetX = Phaser.Math.Linear(this.targetX, desiredX, lerpAmount);
-    this.targetY = Phaser.Math.Linear(this.targetY, desiredY, lerpAmount);
+    this.targetX = Phaser.Math.Linear(this.targetX, target.x, lerpAmount);
+    this.targetY = Phaser.Math.Linear(this.targetY, target.y, lerpAmount);
+    this.moveTowardTarget(target.speed);
+  }
 
+  onPuckHit(): void {
+    this.recoveryTimer = GAMEPLAY.cpuRecoverySeconds;
+    this.aimError = Phaser.Math.Between(-GAMEPLAY.cpuAimError, GAMEPLAY.cpuAimError);
+  }
+
+  private pickState(): CpuState {
+    if (this.recoveryTimer > 0) {
+      return 'recover';
+    }
+
+    const puckInCpuHalf = this.puck.x > GAMEPLAY.cpuHalfMinX;
+    const distanceToPuck = Phaser.Math.Distance.Between(
+      this.paddle.x,
+      this.paddle.y,
+      this.puck.x,
+      this.puck.y,
+    );
+
+    if (puckInCpuHalf && this.puck.isSlowEnoughForCpuAttack() && distanceToPuck <= GAMEPLAY.cpuAttackRadius) {
+      return 'counter';
+    }
+
+    if (puckInCpuHalf || this.puck.isMovingTowardCpu()) {
+      return 'intercept';
+    }
+
+    return 'guard';
+  }
+
+  private getTargetForState(): { x: number; y: number; speed: number } {
+    switch (this.state) {
+      case 'counter':
+        return {
+          x: Math.min(this.puck.x + GAMEPLAY.paddleRadius * 0.75, TABLE.x + TABLE.width - GAMEPLAY.paddleRadius),
+          y: this.puck.y + this.aimError * 0.25,
+          speed: GAMEPLAY.cpuAttackSpeed,
+        };
+      case 'intercept': {
+        const x = TABLE.x + TABLE.width - GAMEPLAY.cpuInterceptOffset;
+        return {
+          x,
+          y: this.puck.predictYAtX(x) + this.aimError,
+          speed: GAMEPLAY.cpuInterceptSpeed,
+        };
+      }
+      case 'recover':
+        return {
+          x: TABLE.x + TABLE.width - GAMEPLAY.cpuGuardOffset,
+          y: TABLE.y + TABLE.height / 2 + this.aimError * 0.5,
+          speed: GAMEPLAY.cpuGuardSpeed,
+        };
+      case 'guard':
+      default:
+        return {
+          x: TABLE.x + TABLE.width - GAMEPLAY.cpuGuardOffset,
+          y: Phaser.Math.Linear(TABLE.y + TABLE.height / 2, this.puck.y, 0.28) + this.aimError * 0.35,
+          speed: GAMEPLAY.cpuGuardSpeed,
+        };
+    }
+  }
+
+  private moveTowardTarget(speed: number): void {
     const dx = this.targetX - this.paddle.x;
     const dy = this.targetY - this.paddle.y;
     const distance = Math.hypot(dx, dy);
@@ -30,7 +100,6 @@ export class CpuController {
       return;
     }
 
-    const speed = puckInCpuHalf ? GAMEPLAY.cpuSpeed : GAMEPLAY.cpuSpeed * 0.65;
     this.paddle.move((dx / distance) * speed, (dy / distance) * speed);
   }
 }

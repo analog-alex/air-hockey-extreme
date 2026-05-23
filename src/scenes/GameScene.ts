@@ -92,7 +92,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    this.puck.maintainSpeed();
+    this.puck.updateMotion();
     this.paintTrail();
   }
 
@@ -107,6 +107,9 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.puck.bounceFromPaddle(paddle, toward);
+    if (paddle === this.cpu) {
+      this.cpuController.onPuckHit();
+    }
     this.cameras.main.shake(70, 0.002);
     this.flashAt(this.puck.x, this.puck.y);
   }

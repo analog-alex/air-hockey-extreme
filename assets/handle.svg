@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Turbo Puck Arena handle">
+  <defs>
+    <radialGradient id="outerBody" cx="48%" cy="38%" r="62%">
+      <stop offset="0%" stop-color="#5b5e64"/>
+      <stop offset="46%" stop-color="#24272d"/>
+      <stop offset="82%" stop-color="#0a0c10"/>
+      <stop offset="100%" stop-color="#030407"/>
+    </radialGradient>
+    <radialGradient id="bowl" cx="42%" cy="34%" r="62%">
+      <stop offset="0%" stop-color="#3d4148"/>
+      <stop offset="48%" stop-color="#191c22"/>
+      <stop offset="100%" stop-color="#06080c"/>
+    </radialGradient>
+    <radialGradient id="knob" cx="38%" cy="30%" r="68%">
+      <stop offset="0%" stop-color="#6a6d72"/>
+      <stop offset="28%" stop-color="#24282f"/>
+      <stop offset="72%" stop-color="#07090d"/>
+      <stop offset="100%" stop-color="#010203"/>
+    </radialGradient>
+    <linearGradient id="ringGlow" x1="0%" x2="100%" y1="50%" y2="50%">
+      <stop offset="0%" stop-color="#39dcff"/>
+      <stop offset="43%" stop-color="#8ff3ff"/>
+      <stop offset="51%" stop-color="#fff1b4"/>
+      <stop offset="61%" stop-color="#ffb932"/>
+      <stop offset="100%" stop-color="#ff5f14"/>
+    </linearGradient>
+    <linearGradient id="sideGlow" x1="0%" x2="100%" y1="50%" y2="50%">
+      <stop offset="0%" stop-color="#31d9ff"/>
+      <stop offset="46%" stop-color="#15aee7"/>
+      <stop offset="54%" stop-color="#ffb12f"/>
+      <stop offset="100%" stop-color="#ff5c13"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="drop" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#000000" flood-opacity="0.78"/>
+    </filter>
+    <pattern id="gripHex" width="22" height="19.05" patternUnits="userSpaceOnUse">
+      <path d="M5.5 0h11l5.5 9.52-5.5 9.53h-11L0 9.52Z" fill="none" stroke="#0b0d11" stroke-width="1.6" opacity="0.52"/>
+    </pattern>
+    <clipPath id="gripClip">
+      <path d="M512 248c70 0 130 50 150 122 10 36-25 60-52 86-34 32-51 64-98 64s-64-32-98-64c-27-26-62-50-52-86 20-72 80-122 150-122Z"/>
+    </clipPath>
+  </defs>
+
+  <circle cx="512" cy="512" r="470" fill="#020305" opacity="0.08"/>
+  <g filter="url(#drop)">
+    <circle cx="512" cy="512" r="424" fill="url(#outerBody)"/>
+    <circle cx="512" cy="488" r="352" fill="#07090d"/>
+    <circle cx="512" cy="482" r="324" fill="url(#bowl)"/>
+    <circle cx="512" cy="482" r="292" fill="#11151b"/>
+
+    <path d="M198 542a326 326 0 0 1 612-170" fill="none" stroke="#050608" stroke-width="58"/>
+    <path d="M220 535a304 304 0 0 1 578-155" fill="none" stroke="url(#ringGlow)" stroke-width="24" filter="url(#glow)" stroke-linecap="round"/>
+    <path d="M220 535a304 304 0 0 1 578-155" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.44" stroke-linecap="round"/>
+
+    <path d="M184 676c28 70 92 124 169 146" fill="none" stroke="#34d9ff" stroke-width="24" filter="url(#glow)" stroke-linecap="round"/>
+    <path d="M840 676c-28 70-92 124-169 146" fill="none" stroke="#ff6a16" stroke-width="24" filter="url(#glow)" stroke-linecap="round"/>
+
+    <circle cx="512" cy="534" r="210" fill="#06080c"/>
+    <path d="M322 510c18-125 92-214 190-214s172 89 190 214c-20 126-92 204-190 204s-170-78-190-204Z" fill="url(#knob)" stroke="#20242b" stroke-width="10"/>
+    <path d="M512 248c70 0 130 50 150 122 10 36-25 60-52 86-34 32-51 64-98 64s-64-32-98-64c-27-26-62-50-52-86 20-72 80-122 150-122Z" fill="#22262c"/>
+    <g clip-path="url(#gripClip)">
+      <rect x="340" y="228" width="344" height="300" fill="url(#gripHex)"/>
+      <circle cx="444" cy="285" r="115" fill="#ffffff" opacity="0.06"/>
+    </g>
+    <path d="M512 520c-40 72-52 128-44 190" fill="none" stroke="#252a31" stroke-width="8" opacity="0.8"/>
+    <path d="M512 520c40 72 52 128 44 190" fill="none" stroke="#12161b" stroke-width="8" opacity="0.85"/>
+    <path d="M360 508c34-110 84-174 152-174" fill="none" stroke="#77e8ff" stroke-width="10" opacity="0.16" stroke-linecap="round"/>
+    <path d="M664 508c-22-88-68-150-142-174" fill="none" stroke="#ff7a18" stroke-width="10" opacity="0.16" stroke-linecap="round"/>
+
+    <g transform="translate(512 842)" font-family="Arial Black, Impact, sans-serif" text-anchor="middle">
+      <text y="0" font-size="58" fill="#37d9ff" stroke="#020305" stroke-width="9" paint-order="stroke" letter-spacing="3">TURBO</text>
+      <text y="43" font-size="30" fill="#8eeeff" stroke="#020305" stroke-width="6" paint-order="stroke" letter-spacing="2">PUCK ARENA</text>
+    </g>
+
+    <circle cx="512" cy="512" r="424" fill="none" stroke="#090b10" stroke-width="34"/>
+    <circle cx="512" cy="512" r="448" fill="none" stroke="#5a5e65" stroke-width="16" opacity="0.65"/>
+    <circle cx="512" cy="512" r="468" fill="none" stroke="#020305" stroke-width="22"/>
+    <path d="M170 668c44 110 146 196 272 220" fill="none" stroke="#32d8ff" stroke-width="12" opacity="0.8" stroke-linecap="round"/>
+    <path d="M854 668c-44 110-146 196-272 220" fill="none" stroke="#ff6715" stroke-width="12" opacity="0.8" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -2,8 +2,6 @@ import Phaser from 'phaser';
 import { GAMEPLAY, TABLE } from '../constants/gameplay';
 
 export class Puck extends Phaser.Physics.Matter.Image {
-  private speed = GAMEPLAY.puckInitialSpeed;
-
   constructor(scene: Phaser.Scene) {
     super(scene.matter.world, TABLE.x + TABLE.width / 2, TABLE.y + TABLE.height / 2, 'puck');
 
@@ -13,7 +11,7 @@ export class Puck extends Phaser.Physics.Matter.Image {
     this.setDisplaySize(GAMEPLAY.puckRadius * 2, GAMEPLAY.puckRadius * 2);
     this.setCircle(GAMEPLAY.puckRadius, {
       friction: 0,
-      frictionAir: 0,
+      frictionAir: GAMEPLAY.puckFrictionAir,
       frictionStatic: 0,
       ignoreGravity: true,
       restitution: 1,
@@ -25,28 +23,35 @@ export class Puck extends Phaser.Physics.Matter.Image {
   }
 
   serve(direction: 1 | -1 = Phaser.Math.RND.pick([1, -1])): void {
-    this.speed = GAMEPLAY.puckInitialSpeed;
     this.setPosition(TABLE.x + TABLE.width / 2, TABLE.y + TABLE.height / 2);
     const angle = Phaser.Math.DegToRad(Phaser.Math.Between(-34, 34));
-    const vx = Math.cos(angle) * this.speed * direction;
-    const vy = Math.sin(angle) * this.speed;
+    const vx = Math.cos(angle) * GAMEPLAY.puckInitialSpeed * direction;
+    const vy = Math.sin(angle) * GAMEPLAY.puckInitialSpeed;
     this.setScaledVelocity(vx, vy);
   }
 
   bounceFromPaddle(paddle: Phaser.Physics.Matter.Image, toward: 1 | -1): void {
+    const velocity = this.getVelocity();
+    const paddleVelocity = paddle.getVelocity();
+    const currentSpeed = this.toGameplaySpeed(Math.hypot(velocity.x, velocity.y));
+    const paddleSpeed = this.toGameplaySpeed(Math.hypot(paddleVelocity.x, paddleVelocity.y));
     const offset = Phaser.Math.Clamp(
       (this.y - paddle.y) / GAMEPLAY.paddleRadius,
       -1,
       1,
     );
-    this.speed = Math.min(
-      this.speed + GAMEPLAY.puckSpeedIncreasePerHit,
+    const nextSpeed = Math.min(
+      Math.max(currentSpeed, GAMEPLAY.puckMomentumBoost) +
+        GAMEPLAY.puckSpeedIncreasePerHit +
+        paddleSpeed * GAMEPLAY.paddleMomentumInfluence,
       GAMEPLAY.puckMaxSpeed,
     );
 
     const angle = Phaser.Math.Linear(-64, 64, (offset + 1) / 2);
-    const vx = Math.cos(Phaser.Math.DegToRad(angle)) * this.speed * toward;
-    const vy = Math.sin(Phaser.Math.DegToRad(angle)) * this.speed;
+    const vx = Math.cos(Phaser.Math.DegToRad(angle)) * nextSpeed * toward;
+    const vy =
+      Math.sin(Phaser.Math.DegToRad(angle)) * nextSpeed +
+      paddleVelocity.y * GAMEPLAY.paddleMomentumInfluence / GAMEPLAY.matterVelocityScale;
 
     this.setScaledVelocity(vx, vy);
     this.setPosition(
@@ -55,16 +60,71 @@ export class Puck extends Phaser.Physics.Matter.Image {
     );
   }
 
-  maintainSpeed(): void {
+  updateMotion(): void {
     const velocity = this.getVelocity();
     const length = Math.hypot(velocity.x, velocity.y);
-    if (length < 0.01) {
-      this.serve();
+    const speed = this.toGameplaySpeed(length);
+
+    if (speed > GAMEPLAY.puckMaxSpeed) {
+      const maxMatterSpeed = GAMEPLAY.puckMaxSpeed * GAMEPLAY.matterVelocityScale;
+      this.setVelocity((velocity.x / length) * maxMatterSpeed, (velocity.y / length) * maxMatterSpeed);
       return;
     }
 
-    const matterSpeed = this.speed * GAMEPLAY.matterVelocityScale;
-    this.setVelocity((velocity.x / length) * matterSpeed, (velocity.y / length) * matterSpeed);
+    if (speed < GAMEPLAY.puckJitterSpeed) {
+      const jitterAngle = Phaser.Math.FloatBetween(0, Math.PI * 2);
+      const jitterSpeed = Phaser.Math.FloatBetween(
+        GAMEPLAY.puckJitterSpeed * 0.25,
+        GAMEPLAY.puckJitterSpeed,
+      );
+      this.setScaledVelocity(Math.cos(jitterAngle) * jitterSpeed, Math.sin(jitterAngle) * jitterSpeed);
+    }
+  }
+
+  getGameplayVelocity(): Phaser.Types.Math.Vector2Like {
+    const velocity = this.getVelocity();
+    return {
+      x: velocity.x / GAMEPLAY.matterVelocityScale,
+      y: velocity.y / GAMEPLAY.matterVelocityScale,
+    };
+  }
+
+  getGameplaySpeed(): number {
+    const velocity = this.getVelocity();
+    return this.toGameplaySpeed(Math.hypot(velocity.x, velocity.y));
+  }
+
+  isMovingTowardCpu(): boolean {
+    return this.getVelocity().x > 0;
+  }
+
+  isSlowEnoughForCpuAttack(): boolean {
+    return this.getGameplaySpeed() <= GAMEPLAY.cpuAttackPuckSpeed;
+  }
+
+  predictYAtX(targetX: number): number {
+    const velocity = this.getGameplayVelocity();
+    if (Math.abs(velocity.x) < 1) {
+      return Phaser.Math.Clamp(
+        this.y,
+        TABLE.y + GAMEPLAY.puckRadius,
+        TABLE.y + TABLE.height - GAMEPLAY.puckRadius,
+      );
+    }
+
+    const timeToTarget = (targetX - this.x) / velocity.x;
+    if (timeToTarget <= 0) {
+      return this.y;
+    }
+
+    const minY = TABLE.y + GAMEPLAY.puckRadius;
+    const maxY = TABLE.y + TABLE.height - GAMEPLAY.puckRadius;
+    const travelHeight = maxY - minY;
+    const rawY = this.y + velocity.y * timeToTarget;
+    const wrapped = Phaser.Math.Wrap(rawY - minY, 0, travelHeight * 2);
+    const reflected = wrapped > travelHeight ? travelHeight * 2 - wrapped : wrapped;
+
+    return minY + reflected;
   }
 
   handleTableWalls(): 'player' | 'cpu' | null {
@@ -100,5 +160,9 @@ export class Puck extends Phaser.Physics.Matter.Image {
 
   private setScaledVelocity(vx: number, vy: number): void {
     this.setVelocity(vx * GAMEPLAY.matterVelocityScale, vy * GAMEPLAY.matterVelocityScale);
+  }
+
+  private toGameplaySpeed(matterSpeed: number): number {
+    return matterSpeed / GAMEPLAY.matterVelocityScale;
   }
 }
