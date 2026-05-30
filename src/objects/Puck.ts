@@ -60,6 +60,18 @@ export class Puck extends Phaser.Physics.Matter.Image {
     );
   }
 
+  tiltTowardPlayer(): void {
+    const angle = Phaser.Math.DegToRad(
+      180 + Phaser.Math.Between(
+        -GAMEPLAY.tiltAngleSpreadDegrees,
+        GAMEPLAY.tiltAngleSpreadDegrees,
+      ),
+    );
+    const speed = Phaser.Math.Between(GAMEPLAY.tiltMinSpeed, GAMEPLAY.tiltMaxSpeed);
+
+    this.setScaledVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+  }
+
   updateMotion(): void {
     const velocity = this.getVelocity();
     const length = Math.hypot(velocity.x, velocity.y);

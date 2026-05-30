@@ -21,6 +21,7 @@ export class GameScene extends Phaser.Scene {
   private table!: Table;
   private isPaused = false;
   private isResetting = false;
+  private tiltCooldown = 0;
 
   constructor() {
     super('GameScene');
@@ -49,7 +50,7 @@ export class GameScene extends Phaser.Scene {
       .setDepth(60);
 
     this.add
-      .text(58, 30, 'ESC PAUSE   R RESTART', textStyle({
+      .text(58, 30, 'ESC PAUSE   R RESTART   T TILT', textStyle({
         color: '#9fb8c9',
         fontSize: '16px',
       }))
@@ -69,11 +70,14 @@ export class GameScene extends Phaser.Scene {
     const keyboard = this.input.keyboard;
     keyboard?.on('keydown-R', () => this.scene.restart());
     keyboard?.on('keydown-ESC', () => this.togglePause());
+    keyboard?.on('keydown-T', () => this.tryTiltRink());
 
     this.puck.serve(Phaser.Math.RND.pick([1, -1]));
   }
 
   update(_time: number, delta: number): void {
+    this.tiltCooldown = Math.max(0, this.tiltCooldown - delta / 1000);
+
     if (this.isPaused || this.isResetting) {
       return;
     }
@@ -164,6 +168,23 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.matter.world.resume();
+  }
+
+  private tryTiltRink(): void {
+    if (this.isPaused || this.isResetting || this.tiltCooldown > 0) {
+      return;
+    }
+
+    const puckInCpuHalf = this.puck.x > GAMEPLAY.cpuHalfMinX;
+    const puckIsSlow = this.puck.getGameplaySpeed() <= GAMEPLAY.tiltEligibleMaxSpeed;
+
+    if (!puckInCpuHalf || !puckIsSlow) {
+      return;
+    }
+
+    this.puck.tiltTowardPlayer();
+    this.tiltCooldown = GAMEPLAY.tiltCooldownSeconds;
+    this.cameras.main.shake(90, 0.003);
   }
 
   private createTableWalls(): void {
