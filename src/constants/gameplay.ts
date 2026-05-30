@@ -10,6 +10,14 @@ export const TABLE = {
   goalDepth: 34,
 };
 
+export const RINK = {
+  x: 108,
+  y: 78,
+  width: 1064,
+  height: 566,
+  goalLineInset: 8,
+};
+
 export const GAMEPLAY = {
   matchPointLimit: 7,
   matterVelocityScale: 1 / 60,
@@ -19,6 +27,15 @@ export const GAMEPLAY = {
   puckMaxSpeed: 820,
   puckFrictionAir: 0.006,
   puckJitterSpeed: 26,
+  puckFlickCooldownSeconds: 10,
+  puckFlickRange: 78,
+  puckFlickSpeed: 1100,
+  puckFlickMaxSpeedSeconds: 0.45,
+  tiltEligibleMaxSpeed: 180,
+  tiltMinSpeed: 340,
+  tiltMaxSpeed: 500,
+  tiltAngleSpreadDegrees: 35,
+  tiltCooldownSeconds: 1,
   puckMomentumBoost: 120,
   puckSpeedIncreasePerHit: 22,
   paddleMomentumInfluence: 0.72,

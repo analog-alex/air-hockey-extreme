@@ -1,9 +1,11 @@
 import Phaser from 'phaser';
-import { GAMEPLAY, TABLE } from '../constants/gameplay';
+import { GAMEPLAY, RINK, TABLE } from '../constants/gameplay';
 
 export class Puck extends Phaser.Physics.Matter.Image {
+  private maxSpeedOverrideTimer = 0;
+
   constructor(scene: Phaser.Scene) {
-    super(scene.matter.world, TABLE.x + TABLE.width / 2, TABLE.y + TABLE.height / 2, 'puck');
+    super(scene.matter.world, RINK.x + RINK.width / 2, RINK.y + RINK.height / 2, 'puck');
 
     scene.add.existing(this);
 
@@ -23,7 +25,8 @@ export class Puck extends Phaser.Physics.Matter.Image {
   }
 
   serve(direction: 1 | -1 = Phaser.Math.RND.pick([1, -1])): void {
-    this.setPosition(TABLE.x + TABLE.width / 2, TABLE.y + TABLE.height / 2);
+    this.maxSpeedOverrideTimer = 0;
+    this.setPosition(RINK.x + RINK.width / 2, RINK.y + RINK.height / 2);
     const angle = Phaser.Math.DegToRad(Phaser.Math.Between(-34, 34));
     const vx = Math.cos(angle) * GAMEPLAY.puckInitialSpeed * direction;
     const vy = Math.sin(angle) * GAMEPLAY.puckInitialSpeed;
@@ -60,12 +63,34 @@ export class Puck extends Phaser.Physics.Matter.Image {
     );
   }
 
-  updateMotion(): void {
+  tiltTowardPlayer(): void {
+    const angle = Phaser.Math.DegToRad(
+      180 + Phaser.Math.Between(
+        -GAMEPLAY.tiltAngleSpreadDegrees,
+        GAMEPLAY.tiltAngleSpreadDegrees,
+      ),
+    );
+    const speed = Phaser.Math.Between(GAMEPLAY.tiltMinSpeed, GAMEPLAY.tiltMaxSpeed);
+
+    this.setScaledVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+  }
+
+  flick(direction: Phaser.Types.Math.Vector2Like): void {
+    this.maxSpeedOverrideTimer = GAMEPLAY.puckFlickMaxSpeedSeconds;
+    this.setScaledVelocity(
+      direction.x * GAMEPLAY.puckFlickSpeed,
+      direction.y * GAMEPLAY.puckFlickSpeed,
+    );
+  }
+
+  updateMotion(deltaSeconds: number): void {
+    this.maxSpeedOverrideTimer = Math.max(0, this.maxSpeedOverrideTimer - deltaSeconds);
+
     const velocity = this.getVelocity();
     const length = Math.hypot(velocity.x, velocity.y);
     const speed = this.toGameplaySpeed(length);
 
-    if (speed > GAMEPLAY.puckMaxSpeed) {
+    if (speed > GAMEPLAY.puckMaxSpeed && this.maxSpeedOverrideTimer <= 0) {
       const maxMatterSpeed = GAMEPLAY.puckMaxSpeed * GAMEPLAY.matterVelocityScale;
       this.setVelocity((velocity.x / length) * maxMatterSpeed, (velocity.y / length) * maxMatterSpeed);
       return;
@@ -107,8 +132,8 @@ export class Puck extends Phaser.Physics.Matter.Image {
     if (Math.abs(velocity.x) < 1) {
       return Phaser.Math.Clamp(
         this.y,
-        TABLE.y + GAMEPLAY.puckRadius,
-        TABLE.y + TABLE.height - GAMEPLAY.puckRadius,
+        RINK.y + GAMEPLAY.puckRadius,
+        RINK.y + RINK.height - GAMEPLAY.puckRadius,
       );
     }
 
@@ -117,8 +142,8 @@ export class Puck extends Phaser.Physics.Matter.Image {
       return this.y;
     }
 
-    const minY = TABLE.y + GAMEPLAY.puckRadius;
-    const maxY = TABLE.y + TABLE.height - GAMEPLAY.puckRadius;
+    const minY = RINK.y + GAMEPLAY.puckRadius;
+    const maxY = RINK.y + RINK.height - GAMEPLAY.puckRadius;
     const travelHeight = maxY - minY;
     const rawY = this.y + velocity.y * timeToTarget;
     const wrapped = Phaser.Math.Wrap(rawY - minY, 0, travelHeight * 2);
@@ -128,12 +153,12 @@ export class Puck extends Phaser.Physics.Matter.Image {
   }
 
   handleTableWalls(): 'player' | 'cpu' | null {
-    const leftGoal = TABLE.x - GAMEPLAY.puckRadius;
-    const rightGoal = TABLE.x + TABLE.width + GAMEPLAY.puckRadius;
-    const top = TABLE.y + GAMEPLAY.puckRadius;
-    const bottom = TABLE.y + TABLE.height - GAMEPLAY.puckRadius;
-    const goalTop = TABLE.y + TABLE.height / 2 - TABLE.goalWidth / 2;
-    const goalBottom = TABLE.y + TABLE.height / 2 + TABLE.goalWidth / 2;
+    const leftGoal = RINK.x + RINK.goalLineInset;
+    const rightGoal = RINK.x + RINK.width - RINK.goalLineInset;
+    const top = RINK.y + GAMEPLAY.puckRadius;
+    const bottom = RINK.y + RINK.height - GAMEPLAY.puckRadius;
+    const goalTop = RINK.y + RINK.height / 2 - TABLE.goalWidth / 2;
+    const goalBottom = RINK.y + RINK.height / 2 + TABLE.goalWidth / 2;
     const isInGoalMouth = this.y >= goalTop && this.y <= goalBottom;
 
     if (this.x <= leftGoal) {

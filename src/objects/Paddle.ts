@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAMEPLAY, TABLE } from '../constants/gameplay';
+import { GAMEPLAY, RINK } from '../constants/gameplay';
 
 type PaddleSide = 'player' | 'cpu';
 
@@ -37,14 +37,14 @@ export class Paddle extends Phaser.Physics.Matter.Image {
   constrainToHalf(): void {
     const minX =
       this.side === 'player'
-        ? TABLE.x + GAMEPLAY.paddleRadius
+        ? RINK.x + GAMEPLAY.paddleRadius
         : GAMEPLAY.cpuHalfMinX + GAMEPLAY.paddleRadius;
     const maxX =
       this.side === 'player'
         ? GAMEPLAY.playerHalfMaxX - GAMEPLAY.paddleRadius
-        : TABLE.x + TABLE.width - GAMEPLAY.paddleRadius;
-    const minY = TABLE.y + GAMEPLAY.paddleRadius;
-    const maxY = TABLE.y + TABLE.height - GAMEPLAY.paddleRadius;
+        : RINK.x + RINK.width - GAMEPLAY.paddleRadius;
+    const minY = RINK.y + GAMEPLAY.paddleRadius;
+    const maxY = RINK.y + RINK.height - GAMEPLAY.paddleRadius;
 
     this.setPosition(
       Phaser.Math.Clamp(this.x, minX, maxX),
