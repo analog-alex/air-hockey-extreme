@@ -5,18 +5,18 @@ import { textStyle } from '../ui/text';
 
 const PANEL = {
   x: GAME_WIDTH / 2,
-  y: 434,
-  width: 640,
-  height: 330,
-  radius: 28,
+  y: 466,
+  width: 680,
+  height: 340,
+  bevel: 32,
 };
 
 const START_BUTTON = {
   x: GAME_WIDTH / 2,
-  y: 326,
-  width: 410,
-  height: 68,
-  radius: 15,
+  y: 352,
+  width: 520,
+  height: 76,
+  bevel: 20,
 };
 
 export class MenuScene extends Phaser.Scene {
@@ -28,21 +28,22 @@ export class MenuScene extends Phaser.Scene {
     new Table(this).draw();
 
     this.add
-      .text(GAME_WIDTH / 2, 146, 'GLIDE.EXE', textStyle({
+      .text(GAME_WIDTH / 2, 136, 'GLIDE.EXE', textStyle({
         color: '#f8fbff',
         fontSize: '78px',
-        fontStyle: 'bold',
+        fontStyle: 'bold italic',
       }))
       .setOrigin(0.5)
-      .setShadow(0, 0, '#00e5ff', 22, true, true);
+      .setShadow(0, 0, '#00e5ff', 28, true, true);
 
     this.add
-      .text(GAME_WIDTH / 2, 214, 'Air Hockey Extreme', textStyle({
+      .text(GAME_WIDTH / 2, 224, 'AIR HOCKEY EXTREME', textStyle({
         color: '#9fefff',
-        fontSize: '28px',
+        fontSize: '22px',
+        fontStyle: 'bold italic',
       }))
       .setOrigin(0.5)
-      .setShadow(0, 0, '#00e5ff', 8, true, true);
+      .setShadow(0, 0, '#00e5ff', 12, true, true);
 
     this.drawSubtitleAccent();
 
@@ -54,7 +55,7 @@ export class MenuScene extends Phaser.Scene {
     this.add
       .text(START_BUTTON.x, START_BUTTON.y, 'START GAME', textStyle({
         color: '#06131f',
-        fontSize: '28px',
+        fontSize: '42px',
         fontStyle: 'bold',
         shadow: {
           color: '#f8fbff',
@@ -88,15 +89,24 @@ export class MenuScene extends Phaser.Scene {
 
   private drawSubtitleAccent(): void {
     const accent = this.add.graphics().setDepth(2);
-    accent.lineStyle(2, 0xff3b68, 0.7);
+    accent.lineStyle(3, 0x00e5ff, 0.72);
     accent.beginPath();
-    accent.moveTo(GAME_WIDTH / 2 - 88, 244);
-    accent.lineTo(GAME_WIDTH / 2 - 34, 244);
-    accent.lineTo(GAME_WIDTH / 2 - 28, 250);
-    accent.lineTo(GAME_WIDTH / 2 + 28, 250);
-    accent.lineTo(GAME_WIDTH / 2 + 34, 244);
-    accent.lineTo(GAME_WIDTH / 2 + 88, 244);
+    accent.moveTo(GAME_WIDTH / 2 - 270, 225);
+    accent.lineTo(GAME_WIDTH / 2 - 240, 225);
+    accent.moveTo(GAME_WIDTH / 2 + 240, 225);
+    accent.lineTo(GAME_WIDTH / 2 + 270, 225);
     accent.strokePath();
+
+    accent.lineStyle(2, 0xff3b68, 0.72);
+    accent.beginPath();
+    accent.moveTo(GAME_WIDTH / 2 - 84, 260);
+    accent.lineTo(GAME_WIDTH / 2 - 24, 260);
+    accent.lineTo(GAME_WIDTH / 2, 270);
+    accent.lineTo(GAME_WIDTH / 2 + 24, 260);
+    accent.lineTo(GAME_WIDTH / 2 + 84, 260);
+    accent.strokePath();
+    accent.fillStyle(0xff3b68, 0.9);
+    accent.fillCircle(GAME_WIDTH / 2, 260, 5);
   }
 
   private drawMenuPanel(): void {
@@ -104,24 +114,25 @@ export class MenuScene extends Phaser.Scene {
     const left = PANEL.x - PANEL.width / 2;
     const top = PANEL.y - PANEL.height / 2;
 
-    glass.fillStyle(0x00e5ff, 0.12);
-    glass.fillRoundedRect(left - 12, top - 12, PANEL.width + 24, PANEL.height + 24, PANEL.radius + 10);
-    glass.fillStyle(0x03101a, 0.78);
-    glass.fillRoundedRect(left, top, PANEL.width, PANEL.height, PANEL.radius);
-    glass.fillStyle(0xf8fbff, 0.06);
-    glass.fillRoundedRect(left + 18, top + 16, PANEL.width - 36, 60, PANEL.radius - 12);
-    glass.lineStyle(2, 0xf8fbff, 0.28);
-    glass.strokeRoundedRect(left, top, PANEL.width, PANEL.height, PANEL.radius);
-    glass.lineStyle(3, 0x00e5ff, 0.82);
-    glass.strokeRoundedRect(left + 10, top + 10, PANEL.width - 20, PANEL.height - 20, PANEL.radius - 10);
-    glass.lineStyle(1, 0x00e5ff, 0.24);
-    glass.strokeRoundedRect(left + 24, top + 24, PANEL.width - 48, PANEL.height - 48, PANEL.radius - 18);
+    glass.fillStyle(0x00e5ff, 0.16);
+    this.fillBeveledRect(glass, left - 14, top - 14, PANEL.width + 28, PANEL.height + 28, PANEL.bevel + 8);
+    glass.fillStyle(0x03101a, 0.9);
+    this.fillBeveledRect(glass, left, top, PANEL.width, PANEL.height, PANEL.bevel);
+    glass.fillStyle(0xf8fbff, 0.055);
+    this.fillBeveledRect(glass, left + 28, top + 28, PANEL.width - 56, 74, PANEL.bevel - 18);
+    glass.lineStyle(3, 0x00e5ff, 0.95);
+    this.strokeBeveledRect(glass, left + 8, top + 8, PANEL.width - 16, PANEL.height - 16, PANEL.bevel - 6);
+    glass.lineStyle(1, 0x9fefff, 0.32);
+    this.strokeBeveledRect(glass, left + 26, top + 26, PANEL.width - 52, PANEL.height - 52, PANEL.bevel - 20);
 
     this.add
-      .rectangle(PANEL.x, top + 1, PANEL.width - 136, 2, 0xf8fbff, 0.6)
+      .rectangle(PANEL.x, top + 12, PANEL.width - 160, 2, 0xf8fbff, 0.6)
       .setDepth(2);
     this.add
-      .rectangle(PANEL.x, top + 14, PANEL.width - 246, 3, 0x00e5ff, 0.72)
+      .rectangle(PANEL.x, top + 24, PANEL.width - 260, 3, 0x00e5ff, 0.78)
+      .setDepth(2);
+    this.add
+      .rectangle(PANEL.x, 476, 2, 72, 0x00e5ff, 0.32)
       .setDepth(2);
   }
 
@@ -133,13 +144,13 @@ export class MenuScene extends Phaser.Scene {
 
     button.clear();
     button.fillStyle(glow, isHover ? 0.3 : 0.22);
-    button.fillRoundedRect(left - 10, top - 10, START_BUTTON.width + 20, START_BUTTON.height + 20, START_BUTTON.radius + 8);
+    this.fillBeveledRect(button, left - 12, top - 12, START_BUTTON.width + 24, START_BUTTON.height + 24, START_BUTTON.bevel + 8);
     button.fillStyle(fill, isHover ? 0.96 : 0.9);
-    button.fillRoundedRect(left, top, START_BUTTON.width, START_BUTTON.height, START_BUTTON.radius);
+    this.fillBeveledRect(button, left, top, START_BUTTON.width, START_BUTTON.height, START_BUTTON.bevel);
     button.lineStyle(2, 0xf8fbff, 0.82);
-    button.strokeRoundedRect(left + 5, top + 5, START_BUTTON.width - 10, START_BUTTON.height - 10, START_BUTTON.radius - 5);
+    this.strokeBeveledRect(button, left + 8, top + 8, START_BUTTON.width - 16, START_BUTTON.height - 16, START_BUTTON.bevel - 8);
     button.lineStyle(3, 0x00e5ff, isHover ? 0.45 : 0.95);
-    button.strokeRoundedRect(left - 1, top - 1, START_BUTTON.width + 2, START_BUTTON.height + 2, START_BUTTON.radius + 2);
+    this.strokeBeveledRect(button, left - 1, top - 1, START_BUTTON.width + 2, START_BUTTON.height + 2, START_BUTTON.bevel + 2);
 
     for (let x = left + 18; x < left + START_BUTTON.width - 18; x += 12) {
       button.lineStyle(1, 0x06131f, 0.08);
@@ -151,11 +162,11 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private addControlCards(): void {
-    this.addControlCard(536, 422, 220, 92, 'WASD', 'MOVE', 'wasd');
-    this.addControlCard(794, 422, 220, 92, 'ARROWS', 'MOVE', 'arrows');
-    this.addControlCard(494, 534, 126, 86, 'ESC', 'PAUSE', 'pause');
-    this.addControlCard(638, 534, 126, 86, 'R', 'RESTART', 'reset');
-    this.addControlCard(812, 534, 190, 86, 'SPACE', 'FLICK', 'flick');
+    this.addControlCard(500, 476, 250, 82, 'WASD', 'MOVE', 'wasd');
+    this.addControlCard(780, 476, 250, 82, 'ARROWS', 'MOVE', 'arrows');
+    this.addControlCard(470, 566, 160, 78, 'ESC', 'PAUSE', 'pause');
+    this.addControlCard(640, 566, 160, 78, 'R', 'RESTART', 'reset');
+    this.addControlCard(840, 566, 220, 78, 'SPACE', 'FLICK', 'flick');
     this.addWinConditionFooter();
   }
 
@@ -171,21 +182,23 @@ export class MenuScene extends Phaser.Scene {
     const card = this.add.graphics().setDepth(3);
     const left = x - width / 2;
     const top = y - height / 2;
+    const bevel = width > 220 ? 24 : 18;
 
     card.fillStyle(0x06131f, 0.74);
-    card.fillRoundedRect(left, top, width, height, 10);
+    this.fillBeveledRect(card, left, top, width, height, bevel);
     card.lineStyle(1, 0x00e5ff, 0.55);
-    card.strokeRoundedRect(left, top, width, height, 10);
+    this.strokeBeveledRect(card, left, top, width, height, bevel);
     card.lineStyle(1, 0x3af4ff, 0.16);
-    card.strokeRoundedRect(left + 8, top + 8, width - 16, height - 16, 7);
+    this.strokeBeveledRect(card, left + 8, top + 8, width - 16, height - 16, Math.max(8, bevel - 8));
 
-    const iconX = left + (width > 160 ? 58 : 36);
+    const iconX = left + (width > 220 ? 62 : 44);
     this.addCardIcon(iconX, y, icon);
+    const textX = left + (width > 220 ? 122 : 84);
 
     this.add
-      .text(left + (width > 160 ? 104 : 70), y - 12, title, textStyle({
+      .text(textX, y - 12, title, textStyle({
         color: '#f8fbff',
-        fontSize: '22px',
+        fontSize: width > 220 ? '24px' : '21px',
         fontStyle: 'bold',
         strokeThickness: 4,
       }))
@@ -193,9 +206,9 @@ export class MenuScene extends Phaser.Scene {
       .setDepth(4);
 
     this.add
-      .text(left + (width > 160 ? 104 : 70), y + 20, subtitle, textStyle({
+      .text(textX, y + 22, subtitle, textStyle({
         color: icon === 'flick' ? '#00e5ff' : '#d8f8ff',
-        fontSize: icon === 'flick' ? '18px' : '14px',
+        fontSize: icon === 'flick' ? '17px' : '15px',
         fontStyle: icon === 'flick' ? 'bold' : '',
         strokeThickness: 3,
       }))
@@ -205,9 +218,15 @@ export class MenuScene extends Phaser.Scene {
 
   private addWinConditionFooter(): void {
     this.add
-      .text(PANEL.x, 602, 'FIRST TO 7 WINS', textStyle({
+      .rectangle(PANEL.x - 126, 626, 78, 2, 0x00e5ff, 0.72)
+      .setDepth(4);
+    this.add
+      .rectangle(PANEL.x + 126, 626, 78, 2, 0x00e5ff, 0.72)
+      .setDepth(4);
+    this.add
+      .text(PANEL.x, 624, 'FIRST TO 7 WINS', textStyle({
         color: '#d8f8ff',
-        fontSize: '18px',
+        fontSize: '17px',
         fontStyle: 'bold',
         strokeThickness: 3,
       }))
@@ -295,5 +314,48 @@ export class MenuScene extends Phaser.Scene {
         .setOrigin(0.5)
         .setDepth(5);
     }
+  }
+
+  private fillBeveledRect(
+    graphics: Phaser.GameObjects.Graphics,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    bevel: number,
+  ): void {
+    graphics.fillPoints(this.getBeveledRectPoints(x, y, width, height, bevel), true);
+  }
+
+  private strokeBeveledRect(
+    graphics: Phaser.GameObjects.Graphics,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    bevel: number,
+  ): void {
+    graphics.strokePoints(this.getBeveledRectPoints(x, y, width, height, bevel), true, true);
+  }
+
+  private getBeveledRectPoints(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    bevel: number,
+  ): Phaser.Geom.Point[] {
+    const cut = Math.min(bevel, width / 2 - 1, height / 2 - 1);
+
+    return [
+      new Phaser.Geom.Point(x + cut, y),
+      new Phaser.Geom.Point(x + width - cut, y),
+      new Phaser.Geom.Point(x + width, y + cut),
+      new Phaser.Geom.Point(x + width, y + height - cut),
+      new Phaser.Geom.Point(x + width - cut, y + height),
+      new Phaser.Geom.Point(x + cut, y + height),
+      new Phaser.Geom.Point(x, y + height - cut),
+      new Phaser.Geom.Point(x, y + cut),
+    ];
   }
 }
