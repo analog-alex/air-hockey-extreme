@@ -155,7 +155,8 @@ export class MenuScene extends Phaser.Scene {
     this.addControlCard(794, 422, 220, 92, 'ARROWS', 'MOVE', 'arrows');
     this.addControlCard(494, 534, 126, 86, 'ESC', 'PAUSE', 'pause');
     this.addControlCard(638, 534, 126, 86, 'R', 'RESTART', 'reset');
-    this.addControlCard(812, 534, 190, 86, 'FIRST TO', '7 WINS', 'trophy');
+    this.addControlCard(812, 534, 190, 86, 'SPACE', 'FLICK', 'flick');
+    this.addWinConditionFooter();
   }
 
   private addControlCard(
@@ -165,7 +166,7 @@ export class MenuScene extends Phaser.Scene {
     height: number,
     title: string,
     subtitle: string,
-    icon: 'wasd' | 'arrows' | 'pause' | 'reset' | 'trophy',
+    icon: 'wasd' | 'arrows' | 'pause' | 'reset' | 'flick',
   ): void {
     const card = this.add.graphics().setDepth(3);
     const left = x - width / 2;
@@ -184,25 +185,37 @@ export class MenuScene extends Phaser.Scene {
     this.add
       .text(left + (width > 160 ? 104 : 70), y - 12, title, textStyle({
         color: '#f8fbff',
-        fontSize: icon === 'trophy' ? '14px' : '22px',
+        fontSize: '22px',
         fontStyle: 'bold',
-        strokeThickness: icon === 'trophy' ? 3 : 4,
+        strokeThickness: 4,
       }))
       .setOrigin(0, 0.5)
       .setDepth(4);
 
     this.add
       .text(left + (width > 160 ? 104 : 70), y + 20, subtitle, textStyle({
-        color: icon === 'trophy' ? '#00e5ff' : '#d8f8ff',
-        fontSize: icon === 'trophy' ? '18px' : '14px',
-        fontStyle: icon === 'trophy' ? 'bold' : '',
+        color: icon === 'flick' ? '#00e5ff' : '#d8f8ff',
+        fontSize: icon === 'flick' ? '18px' : '14px',
+        fontStyle: icon === 'flick' ? 'bold' : '',
         strokeThickness: 3,
       }))
       .setOrigin(0, 0.5)
       .setDepth(4);
   }
 
-  private addCardIcon(x: number, y: number, icon: 'wasd' | 'arrows' | 'pause' | 'reset' | 'trophy'): void {
+  private addWinConditionFooter(): void {
+    this.add
+      .text(PANEL.x, 602, 'FIRST TO 7 WINS', textStyle({
+        color: '#d8f8ff',
+        fontSize: '18px',
+        fontStyle: 'bold',
+        strokeThickness: 3,
+      }))
+      .setOrigin(0.5)
+      .setDepth(4);
+  }
+
+  private addCardIcon(x: number, y: number, icon: 'wasd' | 'arrows' | 'pause' | 'reset' | 'flick'): void {
     if (icon === 'wasd') {
       this.addKeycap(x, y - 17, 'W');
       this.addKeycap(x - 19, y + 2, 'A');
@@ -250,23 +263,18 @@ export class MenuScene extends Phaser.Scene {
       return;
     }
 
-    const trophy = this.add.graphics().setDepth(4);
-    trophy.lineStyle(3, 0x9fefff, 0.9);
-    trophy.strokeRoundedRect(x - 12, y - 19, 24, 22, 5);
-    trophy.beginPath();
-    trophy.moveTo(x - 12, y - 10);
-    trophy.lineTo(x - 24, y - 10);
-    trophy.lineTo(x - 22, y + 2);
-    trophy.lineTo(x - 12, y + 4);
-    trophy.moveTo(x + 12, y - 10);
-    trophy.lineTo(x + 24, y - 10);
-    trophy.lineTo(x + 22, y + 2);
-    trophy.lineTo(x + 12, y + 4);
-    trophy.moveTo(x, y + 3);
-    trophy.lineTo(x, y + 22);
-    trophy.moveTo(x - 14, y + 22);
-    trophy.lineTo(x + 14, y + 22);
-    trophy.strokePath();
+    const flick = this.add.graphics().setDepth(4);
+    flick.lineStyle(3, 0x9fefff, 0.88);
+    flick.strokeCircle(x - 6, y, 12);
+    flick.beginPath();
+    flick.moveTo(x + 4, y);
+    flick.lineTo(x + 26, y);
+    flick.moveTo(x + 18, y - 8);
+    flick.lineTo(x + 28, y);
+    flick.lineTo(x + 18, y + 8);
+    flick.strokePath();
+    flick.fillStyle(0x00e5ff, 0.9);
+    flick.fillCircle(x - 6, y, 3);
   }
 
   private addKeycap(x: number, y: number, label: string): void {

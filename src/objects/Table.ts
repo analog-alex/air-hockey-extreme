@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { COLORS } from '../constants/colors';
-import { GAME_HEIGHT, GAME_WIDTH, TABLE } from '../constants/gameplay';
+import { GAME_HEIGHT, GAME_WIDTH, RINK, TABLE } from '../constants/gameplay';
 
 export class Table {
   constructor(private readonly scene: Phaser.Scene) {}
@@ -22,11 +22,11 @@ export class Table {
   }
 
   pulseGoal(side: 'left' | 'right'): void {
-    const x = side === 'left' ? TABLE.x : TABLE.x + TABLE.width;
+    const x = side === 'left' ? RINK.x + RINK.goalLineInset : RINK.x + RINK.width - RINK.goalLineInset;
     const pulse = this.scene.add
       .rectangle(
         x,
-        TABLE.y + TABLE.height / 2,
+        RINK.y + RINK.height / 2,
         TABLE.goalDepth,
         TABLE.goalWidth,
         side === 'left' ? COLORS.magenta : COLORS.cyan,

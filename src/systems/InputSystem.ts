@@ -20,12 +20,7 @@ export class InputSystem {
   }
 
   updatePlayer(paddle: Paddle): void {
-    const left = this.cursors.left.isDown || this.keys.A.isDown;
-    const right = this.cursors.right.isDown || this.keys.D.isDown;
-    const up = this.cursors.up.isDown || this.keys.W.isDown;
-    const down = this.cursors.down.isDown || this.keys.S.isDown;
-    const x = Number(right) - Number(left);
-    const y = Number(down) - Number(up);
+    const { x, y } = this.getInputVector();
     const length = Math.hypot(x, y);
 
     if (length === 0) {
@@ -37,5 +32,31 @@ export class InputSystem {
       (x / length) * GAMEPLAY.playerSpeed,
       (y / length) * GAMEPLAY.playerSpeed,
     );
+  }
+
+  getAimVector(): Phaser.Types.Math.Vector2Like {
+    const { x, y } = this.getInputVector();
+    const length = Math.hypot(x, y);
+
+    if (length === 0) {
+      return { x: 1, y: 0 };
+    }
+
+    return {
+      x: x / length,
+      y: y / length,
+    };
+  }
+
+  private getInputVector(): Phaser.Types.Math.Vector2Like {
+    const left = this.cursors.left.isDown || this.keys.A.isDown;
+    const right = this.cursors.right.isDown || this.keys.D.isDown;
+    const up = this.cursors.up.isDown || this.keys.W.isDown;
+    const down = this.cursors.down.isDown || this.keys.S.isDown;
+
+    return {
+      x: Number(right) - Number(left),
+      y: Number(down) - Number(up),
+    };
   }
 }

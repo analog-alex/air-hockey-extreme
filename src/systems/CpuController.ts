@@ -1,13 +1,13 @@
 import Phaser from 'phaser';
-import { GAMEPLAY, TABLE } from '../constants/gameplay';
+import { GAMEPLAY, RINK } from '../constants/gameplay';
 import { Paddle } from '../objects/Paddle';
 import { Puck } from '../objects/Puck';
 
 type CpuState = 'guard' | 'intercept' | 'counter' | 'recover';
 
 export class CpuController {
-  private targetX = TABLE.x + TABLE.width - 145;
-  private targetY = TABLE.y + TABLE.height / 2;
+  private targetX = RINK.x + RINK.width - 145;
+  private targetY = RINK.y + RINK.height / 2;
   private state: CpuState = 'guard';
   private recoveryTimer = 0;
   private aimError = 0;
@@ -62,12 +62,15 @@ export class CpuController {
     switch (this.state) {
       case 'counter':
         return {
-          x: Math.min(this.puck.x + GAMEPLAY.paddleRadius * 0.75, TABLE.x + TABLE.width - GAMEPLAY.paddleRadius),
+          x: Math.min(
+            this.puck.x + GAMEPLAY.paddleRadius * 0.75,
+            RINK.x + RINK.width - GAMEPLAY.paddleRadius,
+          ),
           y: this.puck.y + this.aimError * 0.25,
           speed: GAMEPLAY.cpuAttackSpeed,
         };
       case 'intercept': {
-        const x = TABLE.x + TABLE.width - GAMEPLAY.cpuInterceptOffset;
+        const x = RINK.x + RINK.width - GAMEPLAY.cpuInterceptOffset;
         return {
           x,
           y: this.puck.predictYAtX(x) + this.aimError,
@@ -76,15 +79,15 @@ export class CpuController {
       }
       case 'recover':
         return {
-          x: TABLE.x + TABLE.width - GAMEPLAY.cpuGuardOffset,
-          y: TABLE.y + TABLE.height / 2 + this.aimError * 0.5,
+          x: RINK.x + RINK.width - GAMEPLAY.cpuGuardOffset,
+          y: RINK.y + RINK.height / 2 + this.aimError * 0.5,
           speed: GAMEPLAY.cpuGuardSpeed,
         };
       case 'guard':
       default:
         return {
-          x: TABLE.x + TABLE.width - GAMEPLAY.cpuGuardOffset,
-          y: Phaser.Math.Linear(TABLE.y + TABLE.height / 2, this.puck.y, 0.28) + this.aimError * 0.35,
+          x: RINK.x + RINK.width - GAMEPLAY.cpuGuardOffset,
+          y: Phaser.Math.Linear(RINK.y + RINK.height / 2, this.puck.y, 0.28) + this.aimError * 0.35,
           speed: GAMEPLAY.cpuGuardSpeed,
         };
     }
