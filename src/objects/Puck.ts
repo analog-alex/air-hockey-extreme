@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAMEPLAY, RINK, TABLE } from '../constants/gameplay';
+import { GAMEPLAY, RINK, TABLE, fromMatterVelocity, toMatterVelocity } from '../constants/gameplay';
 
 export class Puck extends Phaser.Physics.Matter.Image {
   private maxSpeedOverrideTimer = 0;
@@ -33,6 +33,11 @@ export class Puck extends Phaser.Physics.Matter.Image {
     this.setScaledVelocity(vx, vy);
   }
 
+  /** Stop the puck (0 is the same in gameplay and Matter space). */
+  stop(): void {
+    this.setVelocity(0, 0);
+  }
+
   bounceFromPaddle(paddle: Phaser.Physics.Matter.Image, toward: 1 | -1): void {
     const velocity = this.getVelocity();
     const paddleVelocity = paddle.getVelocity();
@@ -54,7 +59,7 @@ export class Puck extends Phaser.Physics.Matter.Image {
     const vx = Math.cos(Phaser.Math.DegToRad(angle)) * nextSpeed * toward;
     const vy =
       Math.sin(Phaser.Math.DegToRad(angle)) * nextSpeed +
-      paddleVelocity.y * GAMEPLAY.paddleMomentumInfluence / GAMEPLAY.matterVelocityScale;
+      fromMatterVelocity(paddleVelocity.y) * GAMEPLAY.paddleMomentumInfluence;
 
     this.setScaledVelocity(vx, vy);
     this.setPosition(
@@ -91,7 +96,7 @@ export class Puck extends Phaser.Physics.Matter.Image {
     const speed = this.toGameplaySpeed(length);
 
     if (speed > GAMEPLAY.puckMaxSpeed && this.maxSpeedOverrideTimer <= 0) {
-      const maxMatterSpeed = GAMEPLAY.puckMaxSpeed * GAMEPLAY.matterVelocityScale;
+      const maxMatterSpeed = toMatterVelocity(GAMEPLAY.puckMaxSpeed);
       this.setVelocity((velocity.x / length) * maxMatterSpeed, (velocity.y / length) * maxMatterSpeed);
       return;
     }
@@ -109,8 +114,8 @@ export class Puck extends Phaser.Physics.Matter.Image {
   getGameplayVelocity(): Phaser.Types.Math.Vector2Like {
     const velocity = this.getVelocity();
     return {
-      x: velocity.x / GAMEPLAY.matterVelocityScale,
-      y: velocity.y / GAMEPLAY.matterVelocityScale,
+      x: fromMatterVelocity(velocity.x),
+      y: fromMatterVelocity(velocity.y),
     };
   }
 
@@ -184,10 +189,10 @@ export class Puck extends Phaser.Physics.Matter.Image {
   }
 
   private setScaledVelocity(vx: number, vy: number): void {
-    this.setVelocity(vx * GAMEPLAY.matterVelocityScale, vy * GAMEPLAY.matterVelocityScale);
+    this.setVelocity(toMatterVelocity(vx), toMatterVelocity(vy));
   }
 
   private toGameplaySpeed(matterSpeed: number): number {
-    return matterSpeed / GAMEPLAY.matterVelocityScale;
+    return fromMatterVelocity(matterSpeed);
   }
 }

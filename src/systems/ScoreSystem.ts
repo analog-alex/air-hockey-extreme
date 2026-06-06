@@ -10,4 +10,9 @@ export class ScoreSystem {
     this[side] += 1;
     return this[side] >= GAMEPLAY.matchPointLimit;
   }
+
+  reset(): void {
+    this.player = 0;
+    this.cpu = 0;
+  }
 }

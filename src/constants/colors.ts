@@ -9,4 +9,10 @@ export const COLORS = {
   dimWhite: 0x9fb8c9,
   tableDark: 0x07111c,
   tableLine: 0x35e7ff,
+
+  // UI / panel / control card colors (used by MenuScene for neon glassmorphism)
+  darkNavy: 0x06131f,
+  darkPanel: 0x03101a,
+  lightCyan: 0x9fefff,
+  paleCyan: 0xd8f8ff,
 };

@@ -34,6 +34,14 @@ export class CpuController {
     this.aimError = Phaser.Math.Between(-GAMEPLAY.cpuAimError, GAMEPLAY.cpuAimError);
   }
 
+  resetAfterGoal(): void {
+    this.targetX = RINK.x + RINK.width - GAMEPLAY.paddleHomeInset;
+    this.targetY = RINK.y + RINK.height / 2;
+    this.state = 'guard';
+    this.recoveryTimer = 0;
+    this.aimError = 0;
+  }
+
   private pickState(): CpuState {
     if (this.recoveryTimer > 0) {
       return 'recover';

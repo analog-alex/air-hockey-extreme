@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { COLORS } from '../constants/colors';
 import { GAME_WIDTH } from '../constants/gameplay';
 import { Table } from '../objects/Table';
 import { textStyle } from '../ui/text';
@@ -89,7 +90,7 @@ export class MenuScene extends Phaser.Scene {
 
   private drawSubtitleAccent(): void {
     const accent = this.add.graphics().setDepth(2);
-    accent.lineStyle(3, 0x00e5ff, 0.72);
+    accent.lineStyle(3, COLORS.cyan, 0.72);
     accent.beginPath();
     accent.moveTo(GAME_WIDTH / 2 - 270, 225);
     accent.lineTo(GAME_WIDTH / 2 - 240, 225);
@@ -97,7 +98,7 @@ export class MenuScene extends Phaser.Scene {
     accent.lineTo(GAME_WIDTH / 2 + 270, 225);
     accent.strokePath();
 
-    accent.lineStyle(2, 0xff3b68, 0.72);
+    accent.lineStyle(2, COLORS.red, 0.72);
     accent.beginPath();
     accent.moveTo(GAME_WIDTH / 2 - 84, 260);
     accent.lineTo(GAME_WIDTH / 2 - 24, 260);
@@ -105,7 +106,7 @@ export class MenuScene extends Phaser.Scene {
     accent.lineTo(GAME_WIDTH / 2 + 24, 260);
     accent.lineTo(GAME_WIDTH / 2 + 84, 260);
     accent.strokePath();
-    accent.fillStyle(0xff3b68, 0.9);
+    accent.fillStyle(COLORS.red, 0.9);
     accent.fillCircle(GAME_WIDTH / 2, 260, 5);
   }
 
@@ -114,46 +115,46 @@ export class MenuScene extends Phaser.Scene {
     const left = PANEL.x - PANEL.width / 2;
     const top = PANEL.y - PANEL.height / 2;
 
-    glass.fillStyle(0x00e5ff, 0.16);
+    glass.fillStyle(COLORS.cyan, 0.16);
     this.fillBeveledRect(glass, left - 14, top - 14, PANEL.width + 28, PANEL.height + 28, PANEL.bevel + 8);
-    glass.fillStyle(0x03101a, 0.9);
+    glass.fillStyle(COLORS.darkPanel, 0.9);
     this.fillBeveledRect(glass, left, top, PANEL.width, PANEL.height, PANEL.bevel);
-    glass.fillStyle(0xf8fbff, 0.055);
+    glass.fillStyle(COLORS.white, 0.055);
     this.fillBeveledRect(glass, left + 28, top + 28, PANEL.width - 56, 74, PANEL.bevel - 18);
-    glass.lineStyle(3, 0x00e5ff, 0.95);
+    glass.lineStyle(3, COLORS.cyan, 0.95);
     this.strokeBeveledRect(glass, left + 8, top + 8, PANEL.width - 16, PANEL.height - 16, PANEL.bevel - 6);
-    glass.lineStyle(1, 0x9fefff, 0.32);
+    glass.lineStyle(1, COLORS.lightCyan, 0.32);
     this.strokeBeveledRect(glass, left + 26, top + 26, PANEL.width - 52, PANEL.height - 52, PANEL.bevel - 20);
 
     this.add
-      .rectangle(PANEL.x, top + 12, PANEL.width - 160, 2, 0xf8fbff, 0.6)
+      .rectangle(PANEL.x, top + 12, PANEL.width - 160, 2, COLORS.white, 0.6)
       .setDepth(2);
     this.add
-      .rectangle(PANEL.x, top + 24, PANEL.width - 260, 3, 0x00e5ff, 0.78)
+      .rectangle(PANEL.x, top + 24, PANEL.width - 260, 3, COLORS.cyan, 0.78)
       .setDepth(2);
     this.add
-      .rectangle(PANEL.x, 476, 2, 72, 0x00e5ff, 0.32)
+      .rectangle(PANEL.x, 476, 2, 72, COLORS.cyan, 0.32)
       .setDepth(2);
   }
 
   private drawStartButton(button: Phaser.GameObjects.Graphics, isHover: boolean): void {
     const left = START_BUTTON.x - START_BUTTON.width / 2;
     const top = START_BUTTON.y - START_BUTTON.height / 2;
-    const fill = isHover ? 0xf8fbff : 0x00e5ff;
-    const glow = isHover ? 0xf8fbff : 0x00e5ff;
+    const fill = isHover ? COLORS.white : COLORS.cyan;
+    const glow = isHover ? COLORS.white : COLORS.cyan;
 
     button.clear();
     button.fillStyle(glow, isHover ? 0.3 : 0.22);
     this.fillBeveledRect(button, left - 12, top - 12, START_BUTTON.width + 24, START_BUTTON.height + 24, START_BUTTON.bevel + 8);
     button.fillStyle(fill, isHover ? 0.96 : 0.9);
     this.fillBeveledRect(button, left, top, START_BUTTON.width, START_BUTTON.height, START_BUTTON.bevel);
-    button.lineStyle(2, 0xf8fbff, 0.82);
+    button.lineStyle(2, COLORS.white, 0.82);
     this.strokeBeveledRect(button, left + 8, top + 8, START_BUTTON.width - 16, START_BUTTON.height - 16, START_BUTTON.bevel - 8);
-    button.lineStyle(3, 0x00e5ff, isHover ? 0.45 : 0.95);
+    button.lineStyle(3, COLORS.cyan, isHover ? 0.45 : 0.95);
     this.strokeBeveledRect(button, left - 1, top - 1, START_BUTTON.width + 2, START_BUTTON.height + 2, START_BUTTON.bevel + 2);
 
     for (let x = left + 18; x < left + START_BUTTON.width - 18; x += 12) {
-      button.lineStyle(1, 0x06131f, 0.08);
+      button.lineStyle(1, COLORS.darkNavy, 0.08);
       button.beginPath();
       button.moveTo(x, top + 12);
       button.lineTo(x + 8, top + START_BUTTON.height - 12);
@@ -165,7 +166,6 @@ export class MenuScene extends Phaser.Scene {
     this.addControlCard(500, 476, 250, 82, 'WASD', 'MOVE', 'wasd');
     this.addControlCard(780, 476, 250, 82, 'ARROWS', 'MOVE', 'arrows');
     this.addControlCard(470, 566, 160, 78, 'ESC', 'PAUSE', 'pause');
-    this.addControlCard(640, 566, 160, 78, 'R', 'RESTART', 'reset');
     this.addControlCard(840, 566, 220, 78, 'SPACE', 'FLICK', 'flick');
     this.addWinConditionFooter();
   }
@@ -184,11 +184,11 @@ export class MenuScene extends Phaser.Scene {
     const top = y - height / 2;
     const bevel = width > 220 ? 24 : 18;
 
-    card.fillStyle(0x06131f, 0.74);
+    card.fillStyle(COLORS.darkNavy, 0.74);
     this.fillBeveledRect(card, left, top, width, height, bevel);
-    card.lineStyle(1, 0x00e5ff, 0.55);
+    card.lineStyle(1, COLORS.cyan, 0.55);
     this.strokeBeveledRect(card, left, top, width, height, bevel);
-    card.lineStyle(1, 0x3af4ff, 0.16);
+    card.lineStyle(1, COLORS.cyanSoft, 0.16);
     this.strokeBeveledRect(card, left + 8, top + 8, width - 16, height - 16, Math.max(8, bevel - 8));
 
     const iconX = left + (width > 220 ? 62 : 44);
@@ -218,10 +218,10 @@ export class MenuScene extends Phaser.Scene {
 
   private addWinConditionFooter(): void {
     this.add
-      .rectangle(PANEL.x - 126, 626, 78, 2, 0x00e5ff, 0.72)
+      .rectangle(PANEL.x - 126, 626, 78, 2, COLORS.cyan, 0.72)
       .setDepth(4);
     this.add
-      .rectangle(PANEL.x + 126, 626, 78, 2, 0x00e5ff, 0.72)
+      .rectangle(PANEL.x + 126, 626, 78, 2, COLORS.cyan, 0.72)
       .setDepth(4);
     this.add
       .text(PANEL.x, 624, 'FIRST TO 7 WINS', textStyle({
@@ -253,11 +253,11 @@ export class MenuScene extends Phaser.Scene {
 
     if (icon === 'pause') {
       const pause = this.add.graphics().setDepth(4);
-      pause.fillStyle(0x03101a, 0.72);
+      pause.fillStyle(COLORS.darkPanel, 0.72);
       pause.fillRoundedRect(x - 13, y - 13, 26, 26, 5);
-      pause.lineStyle(2, 0x9fefff, 0.9);
+      pause.lineStyle(2, COLORS.lightCyan, 0.9);
       pause.strokeRoundedRect(x - 13, y - 13, 26, 26, 5);
-      pause.fillStyle(0xd8f8ff, 0.92);
+      pause.fillStyle(COLORS.paleCyan, 0.92);
       pause.fillRoundedRect(x - 6, y - 8, 4, 16, 1);
       pause.fillRoundedRect(x + 2, y - 8, 4, 16, 1);
       return;
@@ -265,7 +265,7 @@ export class MenuScene extends Phaser.Scene {
 
     if (icon === 'reset') {
       const reset = this.add.graphics().setDepth(4);
-      reset.lineStyle(3, 0x9fefff, 0.86);
+      reset.lineStyle(3, COLORS.lightCyan, 0.86);
       reset.strokeCircle(x, y, 13);
       reset.beginPath();
       reset.moveTo(x, y - 20);
@@ -277,13 +277,13 @@ export class MenuScene extends Phaser.Scene {
       reset.moveTo(x + 8, y);
       reset.lineTo(x + 20, y);
       reset.strokePath();
-      reset.fillStyle(0x00e5ff, 0.9);
+      reset.fillStyle(COLORS.cyan, 0.9);
       reset.fillCircle(x, y, 3);
       return;
     }
 
     const flick = this.add.graphics().setDepth(4);
-    flick.lineStyle(3, 0x9fefff, 0.88);
+    flick.lineStyle(3, COLORS.lightCyan, 0.88);
     flick.strokeCircle(x - 6, y, 12);
     flick.beginPath();
     flick.moveTo(x + 4, y);
@@ -292,15 +292,15 @@ export class MenuScene extends Phaser.Scene {
     flick.lineTo(x + 28, y);
     flick.lineTo(x + 18, y + 8);
     flick.strokePath();
-    flick.fillStyle(0x00e5ff, 0.9);
+    flick.fillStyle(COLORS.cyan, 0.9);
     flick.fillCircle(x - 6, y, 3);
   }
 
   private addKeycap(x: number, y: number, label: string): void {
     const key = this.add.graphics().setDepth(4);
-    key.fillStyle(0x03101a, 0.8);
+    key.fillStyle(COLORS.darkPanel, 0.8);
     key.fillRoundedRect(x - 10, y - 10, 20, 20, 4);
-    key.lineStyle(1, 0xd8f8ff, 0.78);
+    key.lineStyle(1, COLORS.paleCyan, 0.78);
     key.strokeRoundedRect(x - 10, y - 10, 20, 20, 4);
 
     if (label.length > 0) {

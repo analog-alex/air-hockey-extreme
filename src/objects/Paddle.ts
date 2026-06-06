@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAMEPLAY, RINK } from '../constants/gameplay';
+import { GAMEPLAY, RINK, toMatterVelocity } from '../constants/gameplay';
 
 type PaddleSide = 'player' | 'cpu';
 
@@ -27,11 +27,21 @@ export class Paddle extends Phaser.Physics.Matter.Image {
   }
 
   move(vx: number, vy: number): void {
-    this.setVelocity(vx * GAMEPLAY.matterVelocityScale, vy * GAMEPLAY.matterVelocityScale);
+    this.setVelocity(toMatterVelocity(vx), toMatterVelocity(vy));
   }
 
   stop(): void {
     this.setVelocity(0, 0);
+  }
+
+  resetToHome(): void {
+    const homeX =
+      this.side === 'player'
+        ? RINK.x + GAMEPLAY.paddleHomeInset
+        : RINK.x + RINK.width - GAMEPLAY.paddleHomeInset;
+
+    this.stop();
+    this.setPosition(homeX, RINK.y + RINK.height / 2);
   }
 
   constrainToHalf(): void {
