@@ -18,7 +18,7 @@ export class GameScene extends Phaser.Scene {
   private score = new ScoreSystem();
   private scoreText!: Phaser.GameObjects.Text;
   private flickCooldownText!: Phaser.GameObjects.Text;
-  private pausedText!: Phaser.GameObjects.Text;
+  private pauseOverlay!: Phaser.GameObjects.Container;
   private table!: Table;
   private isPaused = false;
   private isResetting = false;
@@ -30,13 +30,24 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.score = new ScoreSystem();
+    this.isPaused = false;
+    this.isResetting = false;
+    this.tiltCooldown = 0;
+    this.flickCooldown = 0;
+    this.matter.world.resume();
+
+    this.score.reset();
     this.table = new Table(this);
     this.table.draw();
     this.createTableWalls();
 
-    this.player = new Paddle(this, RINK.x + 96, RINK.y + RINK.height / 2, 'player');
-    this.cpu = new Paddle(this, RINK.x + RINK.width - 96, RINK.y + RINK.height / 2, 'cpu');
+    this.player = new Paddle(this, RINK.x + GAMEPLAY.paddleHomeInset, RINK.y + RINK.height / 2, 'player');
+    this.cpu = new Paddle(
+      this,
+      RINK.x + RINK.width - GAMEPLAY.paddleHomeInset,
+      RINK.y + RINK.height / 2,
+      'cpu',
+    );
     this.puck = new Puck(this);
 
     this.inputSystem = new InputSystem(this);
@@ -52,7 +63,7 @@ export class GameScene extends Phaser.Scene {
       .setDepth(60);
 
     this.add
-      .text(58, 30, 'ESC PAUSE   R RESTART   T TILT   SPACE FLICK', textStyle({
+      .text(58, 30, 'ESC PAUSE   T TILT   SPACE FLICK', textStyle({
         color: '#9fb8c9',
         fontSize: '16px',
       }))
@@ -67,18 +78,9 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(0, 0.5)
       .setDepth(60);
 
-    this.pausedText = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'PAUSED', textStyle({
-        color: '#f8fbff',
-        fontSize: '58px',
-        fontStyle: 'bold',
-      }))
-      .setOrigin(0.5)
-      .setDepth(80)
-      .setVisible(false);
+    this.createPauseOverlay();
 
     const keyboard = this.input.keyboard;
-    keyboard?.on('keydown-R', () => this.scene.restart());
     keyboard?.on('keydown-ESC', () => this.togglePause());
     keyboard?.on('keydown-T', () => this.tryTiltRink());
     keyboard?.on('keydown-SPACE', () => this.tryFlickPuck());
@@ -142,8 +144,11 @@ export class GameScene extends Phaser.Scene {
 
   private handleGoal(side: ScoringSide): void {
     this.isResetting = true;
-    this.puck.setVelocity(0, 0);
+    this.puck.stop();
     this.puck.setPosition(RINK.x + RINK.width / 2, RINK.y + RINK.height / 2);
+    this.player.resetToHome();
+    this.cpu.resetToHome();
+    this.cpuController.resetAfterGoal();
 
     const matchOver = this.score.addPoint(side);
     this.updateScoreText();
@@ -171,9 +176,62 @@ export class GameScene extends Phaser.Scene {
     this.scoreText.setText(`${this.score.player}  :  ${this.score.cpu}`);
   }
 
+  private createPauseOverlay(): void {
+    this.pauseOverlay = this.add.container(0, 0).setDepth(79).setVisible(false);
+
+    const overlayBg = this.add
+      .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, COLORS.background, 0.55)
+      .setInteractive();
+
+    const pausedText = this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 72, 'PAUSED', textStyle({
+        color: '#f8fbff',
+        fontSize: '58px',
+        fontStyle: 'bold',
+      }))
+      .setOrigin(0.5);
+
+    const restartButton = this.makePauseButton(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 24, 'RESTART');
+    restartButton.on('pointerdown', () => this.restartFromPause());
+
+    const resumeHint = this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 108, 'ESC to resume', textStyle({
+        color: '#9fb8c9',
+        fontSize: '18px',
+      }))
+      .setOrigin(0.5);
+
+    this.pauseOverlay.add([overlayBg, pausedText, restartButton, resumeHint]);
+  }
+
+  private makePauseButton(x: number, y: number, label: string): Phaser.GameObjects.Text {
+    const button = this.add
+      .text(x, y, label, textStyle({
+        color: '#030509',
+        backgroundColor: '#00e5ff',
+        fontSize: '25px',
+        padding: { x: 28, y: 12 },
+      }))
+      .setOrigin(0.5)
+      .setInteractive({ useHandCursor: true });
+
+    button.on('pointerover', () => button.setStyle({ backgroundColor: '#f8fbff' }));
+    button.on('pointerout', () => button.setStyle({ backgroundColor: '#00e5ff' }));
+
+    return button;
+  }
+
+  private restartFromPause(): void {
+    this.isPaused = false;
+    this.isResetting = false;
+    this.pauseOverlay.setVisible(false);
+    this.matter.world.resume();
+    this.scene.restart();
+  }
+
   private togglePause(): void {
     this.isPaused = !this.isPaused;
-    this.pausedText.setVisible(this.isPaused);
+    this.pauseOverlay.setVisible(this.isPaused);
 
     if (this.isPaused) {
       this.matter.world.pause();
@@ -300,5 +358,17 @@ export class GameScene extends Phaser.Scene {
       ease: 'Sine.easeOut',
       onComplete: () => flash.destroy(),
     });
+  }
+
+  shutdown(): void {
+    // Remove persistent keyboard handlers to prevent accumulation across restarts
+    // (other scenes use .once() which self-cleans; InputSystem manages its own cursors/keys).
+    const keyboard = this.input.keyboard;
+    keyboard?.off('keydown-ESC');
+    keyboard?.off('keydown-T');
+    keyboard?.off('keydown-SPACE');
+
+    // Ensure Matter world is resumed so a fresh scene (or other scenes) is never left paused.
+    this.matter?.world?.resume();
   }
 }

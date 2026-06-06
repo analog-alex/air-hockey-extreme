@@ -35,8 +35,8 @@ TMPDIR="$PWD/.bun-tmp" BUN_INSTALL_CACHE_DIR="$PWD/.bun-cache" bun install
 - Use Phaser Matter Physics for game movement, collisions, and rink walls.
 - Keep the game modular: scene orchestration in scenes, reusable behavior in objects/systems.
 - Preserve the 1280x720 canvas target with fit-and-center scaling.
-- Keep player controls keyboard-first: WASD/arrows, `R` restart, `Esc` pause.
-- Player paddle stays in the bottom half; CPU paddle stays in the top half.
+- Keep player controls keyboard-first: WASD/arrows, `Esc` pause (restart available from the pause menu button).
+- Player paddle stays in the left half (defending left goal); CPU paddle stays in the right half (defending right goal). Goals are located on the left and right sides of the rink.
 - Keep the MVP focused: no online multiplayer, accounts, leaderboards, mobile controls, or tournament modes yet.
 - Prefer small, readable changes over broad rewrites.
 

@@ -23,22 +23,23 @@ export const GAMEPLAY = {
   matterVelocityScale: 1 / 60,
   playerSpeed: 520,
   cpuSpeed: 390,
-  puckInitialSpeed: 620,
-  puckMaxSpeed: 980,
+  puckInitialSpeed: 1000,
+  puckMaxSpeed: 1680,
   puckFrictionAir: 0.0045,
   puckJitterSpeed: 26,
   puckFlickCooldownSeconds: 10,
   puckFlickRange: 78,
-  puckFlickSpeed: 1300,
+  puckFlickSpeed: 2350,
   puckFlickMaxSpeedSeconds: 0.45,
   tiltEligibleMaxSpeed: 180,
   tiltMinSpeed: 480,
   tiltMaxSpeed: 680,
   tiltAngleSpreadDegrees: 35,
   tiltCooldownSeconds: 1,
-  puckMomentumBoost: 640,
-  puckSpeedIncreasePerHit: 32,
-  paddleMomentumInfluence: 0.72,
+  puckMomentumBoost: 1040,
+  puckSpeedIncreasePerHit: 72,
+  paddleMomentumInfluence: 0.95,
+  paddleHomeInset: 96,
   paddleRadius: 36,
   puckRadius: 18,
   playerHalfMaxX: GAME_WIDTH / 2,
@@ -54,3 +55,20 @@ export const GAMEPLAY = {
   cpuAimError: 78,
   cpuRecoverySeconds: 0.52,
 };
+
+/**
+ * Velocity conversion helpers for Matter Physics.
+ * Gameplay constants (speeds etc.) are expressed in pixels/second.
+ * Matter bodies expect velocities scaled to the internal timestep (~1/60).
+ * All velocity I/O for paddles/puck should go through these (or the
+ * objects' move / setScaledVelocity / getGameplay* APIs).
+ */
+export const MATTER_VELOCITY_SCALE = GAMEPLAY.matterVelocityScale;
+
+export function toMatterVelocity(v: number): number {
+  return v * MATTER_VELOCITY_SCALE;
+}
+
+export function fromMatterVelocity(v: number): number {
+  return v / MATTER_VELOCITY_SCALE;
+}
