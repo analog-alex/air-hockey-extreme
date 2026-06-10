@@ -59,7 +59,7 @@ export class CpuController {
       return 'counter';
     }
 
-    if (puckInCpuHalf || this.puck.isMovingTowardCpu()) {
+    if (puckInCpuHalf) {
       return 'intercept';
     }
 
@@ -74,7 +74,7 @@ export class CpuController {
             this.puck.x + GAMEPLAY.paddleRadius * 0.75,
             RINK.x + RINK.width - GAMEPLAY.paddleRadius,
           ),
-          y: this.puck.y + this.aimError * 0.25,
+          y: this.puck.y + this.aimError * 0.42,
           speed: GAMEPLAY.cpuAttackSpeed,
         };
       case 'intercept': {
@@ -95,7 +95,9 @@ export class CpuController {
       default:
         return {
           x: RINK.x + RINK.width - GAMEPLAY.cpuGuardOffset,
-          y: Phaser.Math.Linear(RINK.y + RINK.height / 2, this.puck.y, 0.28) + this.aimError * 0.35,
+          y:
+            Phaser.Math.Linear(RINK.y + RINK.height / 2, this.puck.y, GAMEPLAY.cpuGuardTracking) +
+            this.aimError * 0.5,
           speed: GAMEPLAY.cpuGuardSpeed,
         };
     }
