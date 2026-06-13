@@ -8,6 +8,7 @@ import { CpuController } from '../systems/CpuController';
 import { InputSystem } from '../systems/InputSystem';
 import { ScoreSystem, ScoringSide } from '../systems/ScoreSystem';
 import { textStyle } from '../ui/text';
+import { isTouchFirstDevice } from '../utils/device';
 
 export class GameScene extends Phaser.Scene {
   private player!: Paddle;
@@ -27,6 +28,7 @@ export class GameScene extends Phaser.Scene {
   private boostStamina = 1;
   private isBoosting = false;
   private boostExhausted = false;
+  private readonly usesTouchControls = isTouchFirstDevice();
 
   constructor() {
     super('GameScene');
@@ -67,8 +69,11 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setDepth(60);
 
+    const controlsHint = this.usesTouchControls
+      ? 'DRAG TO MOVE   FLICK FAST TO BOOST'
+      : 'ESC PAUSE   T TILT   SPACE BOOST';
     this.add
-      .text(58, 30, 'ESC PAUSE   T TILT   SPACE BOOST', textStyle({
+      .text(58, 30, controlsHint, textStyle({
         color: '#9fb8c9',
         fontSize: '16px',
       }))
@@ -95,6 +100,9 @@ export class GameScene extends Phaser.Scene {
       .setDepth(60);
 
     this.createPauseOverlay();
+    if (this.usesTouchControls) {
+      this.createTouchActionButtons();
+    }
 
     const keyboard = this.input.keyboard;
     keyboard?.on('keydown-ESC', () => this.togglePause());
@@ -166,6 +174,7 @@ export class GameScene extends Phaser.Scene {
     this.player.resetToHome();
     this.cpu.resetToHome();
     this.cpuController.resetAfterGoal();
+    this.inputSystem.cancelTouch();
     this.refillBoostStamina();
 
     const matchOver = this.score.addPoint(side);
@@ -209,17 +218,36 @@ export class GameScene extends Phaser.Scene {
       }))
       .setOrigin(0.5);
 
-    const restartButton = this.makePauseButton(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 24, 'RESTART');
+    const restartY = this.usesTouchControls ? GAME_HEIGHT / 2 + 72 : GAME_HEIGHT / 2 + 24;
+    const restartButton = this.makePauseButton(GAME_WIDTH / 2, restartY, 'RESTART');
     restartButton.on('pointerdown', () => this.restartFromPause());
 
+    let resumeButton: Phaser.GameObjects.Text | undefined;
+    if (this.usesTouchControls) {
+      resumeButton = this.makePauseButton(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 4, 'RESUME');
+      resumeButton.on('pointerdown', () => this.togglePause());
+    }
+
+    const resumeHintY = this.usesTouchControls ? GAME_HEIGHT / 2 + 140 : GAME_HEIGHT / 2 + 108;
     const resumeHint = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 108, 'ESC to resume', textStyle({
-        color: '#9fb8c9',
-        fontSize: '18px',
-      }))
+      .text(
+        GAME_WIDTH / 2,
+        resumeHintY,
+        this.usesTouchControls ? 'Tap RESUME to continue' : 'ESC to resume',
+        textStyle({
+          color: '#9fb8c9',
+          fontSize: '18px',
+        }),
+      )
       .setOrigin(0.5);
 
-    this.pauseOverlay.add([overlayBg, pausedText, restartButton, resumeHint]);
+    this.pauseOverlay.add([
+      overlayBg,
+      pausedText,
+      ...(resumeButton ? [resumeButton] : []),
+      restartButton,
+      resumeHint,
+    ]);
   }
 
   private makePauseButton(x: number, y: number, label: string): Phaser.GameObjects.Text {
@@ -252,6 +280,7 @@ export class GameScene extends Phaser.Scene {
     this.pauseOverlay.setVisible(this.isPaused);
 
     if (this.isPaused) {
+      this.inputSystem.cancelTouch();
       this.matter.world.pause();
       return;
     }
@@ -277,7 +306,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private updateBoost(deltaSeconds: number): void {
-    const boostDown = this.inputSystem.isBoostDown();
+    const boostDown = this.inputSystem.isBoostRequested();
     const isMoving = this.inputSystem.hasMovementInput();
 
     if (!boostDown) {
@@ -380,6 +409,50 @@ export class GameScene extends Phaser.Scene {
     );
   }
 
+  private createTouchActionButtons(): void {
+    const tilt = this.makeTouchActionButton(1002, 30, 'TILT');
+    const pause = this.makeTouchActionButton(1120, 30, 'PAUSE');
+
+    tilt.on(
+      'pointerdown',
+      (
+        _pointer: Phaser.Input.Pointer,
+        _x: number,
+        _y: number,
+        event: Phaser.Types.Input.EventData,
+      ) => {
+        event.stopPropagation();
+        this.tryTiltRink();
+      },
+    );
+    pause.on(
+      'pointerdown',
+      (
+        _pointer: Phaser.Input.Pointer,
+        _x: number,
+        _y: number,
+        event: Phaser.Types.Input.EventData,
+      ) => {
+        event.stopPropagation();
+        this.togglePause();
+      },
+    );
+  }
+
+  private makeTouchActionButton(x: number, y: number, label: string): Phaser.GameObjects.Text {
+    return this.add
+      .text(x, y, label, textStyle({
+        color: '#030509',
+        backgroundColor: '#00e5ff',
+        fontSize: '18px',
+        fontStyle: 'bold',
+        padding: { x: 20, y: 10 },
+      }))
+      .setOrigin(0.5)
+      .setDepth(70)
+      .setInteractive();
+  }
+
   private paintTrail(): void {
     const trail = this.add
       .circle(this.puck.x, this.puck.y, GAMEPLAY.puckRadius * 0.78, COLORS.red, 0.34)
@@ -412,6 +485,7 @@ export class GameScene extends Phaser.Scene {
     const keyboard = this.input.keyboard;
     keyboard?.off('keydown-ESC');
     keyboard?.off('keydown-T');
+    this.inputSystem?.destroy();
 
     // Ensure Matter world is resumed so a fresh scene (or other scenes) is never left paused.
     this.matter?.world?.resume();

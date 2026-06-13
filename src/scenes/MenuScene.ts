@@ -3,6 +3,7 @@ import { COLORS } from '../constants/colors';
 import { GAME_WIDTH } from '../constants/gameplay';
 import { Table } from '../objects/Table';
 import { textStyle } from '../ui/text';
+import { isTouchFirstDevice } from '../utils/device';
 
 const PANEL = {
   x: GAME_WIDTH / 2,
@@ -21,6 +22,8 @@ const START_BUTTON = {
 };
 
 export class MenuScene extends Phaser.Scene {
+  private readonly usesTouchControls = isTouchFirstDevice();
+
   constructor() {
     super('MenuScene');
   }
@@ -163,6 +166,15 @@ export class MenuScene extends Phaser.Scene {
   }
 
   private addControlCards(): void {
+    if (this.usesTouchControls) {
+      this.addControlCard(500, 476, 250, 82, 'DRAG', 'MOVE', 'touch');
+      this.addControlCard(780, 476, 250, 82, 'FLICK', 'BOOST', 'boost');
+      this.addControlCard(500, 566, 220, 78, 'TAP', 'PAUSE', 'pause');
+      this.addControlCard(780, 566, 220, 78, 'TAP', 'TILT', 'touch');
+      this.addWinConditionFooter();
+      return;
+    }
+
     this.addControlCard(500, 476, 250, 82, 'WASD', 'MOVE', 'wasd');
     this.addControlCard(780, 476, 250, 82, 'ARROWS', 'MOVE', 'arrows');
     this.addControlCard(470, 566, 160, 78, 'ESC', 'PAUSE', 'pause');
@@ -177,7 +189,7 @@ export class MenuScene extends Phaser.Scene {
     height: number,
     title: string,
     subtitle: string,
-    icon: 'wasd' | 'arrows' | 'pause' | 'reset' | 'boost',
+    icon: 'wasd' | 'arrows' | 'pause' | 'reset' | 'boost' | 'touch',
   ): void {
     const card = this.add.graphics().setDepth(3);
     const left = x - width / 2;
@@ -234,7 +246,7 @@ export class MenuScene extends Phaser.Scene {
       .setDepth(4);
   }
 
-  private addCardIcon(x: number, y: number, icon: 'wasd' | 'arrows' | 'pause' | 'reset' | 'boost'): void {
+  private addCardIcon(x: number, y: number, icon: 'wasd' | 'arrows' | 'pause' | 'reset' | 'boost' | 'touch'): void {
     if (icon === 'wasd') {
       this.addKeycap(x, y - 17, 'W');
       this.addKeycap(x - 19, y + 2, 'A');
@@ -279,6 +291,19 @@ export class MenuScene extends Phaser.Scene {
       reset.strokePath();
       reset.fillStyle(COLORS.cyan, 0.9);
       reset.fillCircle(x, y, 3);
+      return;
+    }
+
+    if (icon === 'touch') {
+      const touch = this.add.graphics().setDepth(4);
+      touch.lineStyle(3, COLORS.lightCyan, 0.88);
+      touch.strokeCircle(x, y - 4, 9);
+      touch.beginPath();
+      touch.moveTo(x, y + 5);
+      touch.lineTo(x + 10, y + 18);
+      touch.moveTo(x, y + 5);
+      touch.lineTo(x - 6, y + 15);
+      touch.strokePath();
       return;
     }
 
