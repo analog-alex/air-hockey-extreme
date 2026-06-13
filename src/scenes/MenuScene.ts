@@ -1,24 +1,25 @@
 import Phaser from 'phaser';
 import { COLORS } from '../constants/colors';
-import { GAME_WIDTH } from '../constants/gameplay';
+import { GAME_HEIGHT, GAME_WIDTH } from '../constants/gameplay';
 import { Table } from '../objects/Table';
-import { textStyle } from '../ui/text';
+import { displayTextStyle, textStyle } from '../ui/text';
 import { isTouchFirstDevice } from '../utils/device';
+import { applyRenderScale } from '../utils/renderScale';
 
 const PANEL = {
   x: GAME_WIDTH / 2,
-  y: 466,
-  width: 680,
-  height: 340,
-  bevel: 32,
+  y: 476,
+  width: 800,
+  height: 338,
+  bevel: 36,
 };
 
 const START_BUTTON = {
   x: GAME_WIDTH / 2,
-  y: 352,
-  width: 520,
-  height: 76,
-  bevel: 20,
+  y: 354,
+  width: 650,
+  height: 82,
+  bevel: 24,
 };
 
 export class MenuScene extends Phaser.Scene {
@@ -29,27 +30,11 @@ export class MenuScene extends Phaser.Scene {
   }
 
   create(): void {
+    applyRenderScale(this);
+
     new Table(this).draw();
-
-    this.add
-      .text(GAME_WIDTH / 2, 136, 'GLIDE.EXE', textStyle({
-        color: '#f8fbff',
-        fontSize: '78px',
-        fontStyle: 'bold italic',
-      }))
-      .setOrigin(0.5)
-      .setShadow(0, 0, '#00e5ff', 28, true, true);
-
-    this.add
-      .text(GAME_WIDTH / 2, 224, 'AIR HOCKEY EXTREME', textStyle({
-        color: '#9fefff',
-        fontSize: '22px',
-        fontStyle: 'bold italic',
-      }))
-      .setOrigin(0.5)
-      .setShadow(0, 0, '#00e5ff', 12, true, true);
-
-    this.drawSubtitleAccent();
+    this.drawArenaTreatment();
+    this.drawTitle();
 
     this.drawMenuPanel();
 
@@ -57,20 +42,21 @@ export class MenuScene extends Phaser.Scene {
     this.drawStartButton(startButton, false);
 
     this.add
-      .text(START_BUTTON.x, START_BUTTON.y, 'START GAME', textStyle({
-        color: '#06131f',
-        fontSize: '42px',
-        fontStyle: 'bold',
+      .text(START_BUTTON.x, START_BUTTON.y, 'START GAME', displayTextStyle({
+        color: '#f8fbff',
+        fontSize: '40px',
+        fontStyle: '700 italic',
+        letterSpacing: 8,
         shadow: {
-          color: '#f8fbff',
-          blur: 3,
+          color: '#00e5ff',
+          blur: 12,
           fill: true,
           offsetX: 0,
           offsetY: 0,
           stroke: true,
         },
-        stroke: '#f8fbff',
-        strokeThickness: 2,
+        stroke: '#07111c',
+        strokeThickness: 5,
       }))
       .setOrigin(0.5)
       .setDepth(4);
@@ -91,26 +77,81 @@ export class MenuScene extends Phaser.Scene {
     keyboard?.once('keydown-ENTER', () => this.scene.start('GameScene'));
   }
 
-  private drawSubtitleAccent(): void {
-    const accent = this.add.graphics().setDepth(2);
-    accent.lineStyle(3, COLORS.cyan, 0.72);
-    accent.beginPath();
-    accent.moveTo(GAME_WIDTH / 2 - 270, 225);
-    accent.lineTo(GAME_WIDTH / 2 - 240, 225);
-    accent.moveTo(GAME_WIDTH / 2 + 240, 225);
-    accent.lineTo(GAME_WIDTH / 2 + 270, 225);
-    accent.strokePath();
+  private drawArenaTreatment(): void {
+    this.add
+      .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x020812, 0.78)
+      .setDepth(-1);
 
-    accent.lineStyle(2, COLORS.red, 0.72);
-    accent.beginPath();
-    accent.moveTo(GAME_WIDTH / 2 - 84, 260);
-    accent.lineTo(GAME_WIDTH / 2 - 24, 260);
-    accent.lineTo(GAME_WIDTH / 2, 270);
-    accent.lineTo(GAME_WIDTH / 2 + 24, 260);
-    accent.lineTo(GAME_WIDTH / 2 + 84, 260);
-    accent.strokePath();
-    accent.fillStyle(COLORS.red, 0.9);
-    accent.fillCircle(GAME_WIDTH / 2, 260, 5);
+    const atmosphere = this.add.graphics().setDepth(0);
+    atmosphere.fillGradientStyle(COLORS.cyan, COLORS.cyan, COLORS.blue, COLORS.blue, 0.13, 0.13, 0, 0);
+    atmosphere.fillRect(90, 34, 1100, 82);
+    atmosphere.fillGradientStyle(COLORS.red, 0x000000, COLORS.red, 0x000000, 0.12, 0, 0.1, 0);
+    atmosphere.fillRect(92, 112, 1096, 530);
+
+    for (let y = 72; y < 650; y += 8) {
+      atmosphere.lineStyle(1, COLORS.cyan, y % 24 === 0 ? 0.035 : 0.018);
+      atmosphere.lineBetween(108, y, 1172, y);
+    }
+
+    atmosphere.lineStyle(2, COLORS.cyan, 0.8);
+    atmosphere.lineBetween(170, 54, 520, 54);
+    atmosphere.lineBetween(760, 54, 1110, 54);
+    atmosphere.lineStyle(3, COLORS.cyanSoft, 0.95);
+    atmosphere.lineBetween(548, 54, 732, 54);
+    atmosphere.lineStyle(2, COLORS.red, 0.78);
+    atmosphere.lineBetween(106, 218, 106, 300);
+    atmosphere.lineBetween(1174, 218, 1174, 300);
+  }
+
+  private drawTitle(): void {
+    const titleStyle = displayTextStyle({
+      fontSize: '88px',
+      fontStyle: '800 italic',
+      letterSpacing: 2,
+      strokeThickness: 0,
+      shadow: { color: 'transparent', blur: 0, fill: false, offsetX: 0, offsetY: 0, stroke: false },
+    });
+
+    this.add.text(GAME_WIDTH / 2 - 4, 143, 'GLIDE.EXE', { ...titleStyle, color: '#ff3b68' })
+      .setOrigin(0.5)
+      .setAlpha(0.5)
+      .setDepth(1);
+    this.add.text(GAME_WIDTH / 2 + 4, 139, 'GLIDE.EXE', { ...titleStyle, color: '#00e5ff' })
+      .setOrigin(0.5)
+      .setAlpha(0.62)
+      .setDepth(1);
+    this.add.text(GAME_WIDTH / 2, 140, 'GLIDE.EXE', { ...titleStyle, color: '#f8fbff' })
+      .setOrigin(0.5)
+      .setDepth(2)
+      .setShadow(0, 0, '#00e5ff', 20, true, true);
+
+    const glitch = this.add.graphics().setDepth(3);
+    const strips = [109, 126, 151, 168];
+    strips.forEach((y, index) => {
+      glitch.fillStyle(index % 2 === 0 ? COLORS.cyan : COLORS.red, 0.72);
+      glitch.fillRect(350 + index * 24, y, 120 + index * 18, index % 2 === 0 ? 2 : 1);
+      glitch.fillRect(754 - index * 12, y + 4, 150, 1);
+    });
+
+    this.add
+      .text(GAME_WIDTH / 2, 224, 'A I R   H O C K E Y', textStyle({
+        color: '#65efff',
+        fontSize: '19px',
+        fontStyle: 'bold italic',
+        letterSpacing: 5,
+        strokeThickness: 2,
+      }))
+      .setOrigin(0.5)
+      .setDepth(2)
+      .setShadow(0, 0, '#00e5ff', 8, true, true);
+
+    const accent = this.add.graphics().setDepth(2);
+    accent.lineStyle(1, COLORS.cyan, 0.85);
+    accent.lineBetween(390, 224, 490, 224);
+    accent.lineBetween(790, 224, 890, 224);
+    accent.lineStyle(2, COLORS.red, 0.9);
+    accent.lineBetween(504, 224, 514, 224);
+    accent.lineBetween(766, 224, 776, 224);
   }
 
   private drawMenuPanel(): void {
@@ -118,67 +159,66 @@ export class MenuScene extends Phaser.Scene {
     const left = PANEL.x - PANEL.width / 2;
     const top = PANEL.y - PANEL.height / 2;
 
-    glass.fillStyle(COLORS.cyan, 0.16);
-    this.fillBeveledRect(glass, left - 14, top - 14, PANEL.width + 28, PANEL.height + 28, PANEL.bevel + 8);
-    glass.fillStyle(COLORS.darkPanel, 0.9);
+    glass.fillStyle(COLORS.cyan, 0.1);
+    this.fillBeveledRect(glass, left - 12, top - 12, PANEL.width + 24, PANEL.height + 24, PANEL.bevel + 10);
+    glass.fillStyle(COLORS.darkPanel, 0.96);
     this.fillBeveledRect(glass, left, top, PANEL.width, PANEL.height, PANEL.bevel);
-    glass.fillStyle(COLORS.white, 0.055);
-    this.fillBeveledRect(glass, left + 28, top + 28, PANEL.width - 56, 74, PANEL.bevel - 18);
-    glass.lineStyle(3, COLORS.cyan, 0.95);
-    this.strokeBeveledRect(glass, left + 8, top + 8, PANEL.width - 16, PANEL.height - 16, PANEL.bevel - 6);
-    glass.lineStyle(1, COLORS.lightCyan, 0.32);
-    this.strokeBeveledRect(glass, left + 26, top + 26, PANEL.width - 52, PANEL.height - 52, PANEL.bevel - 20);
+    glass.lineStyle(2, COLORS.cyan, 0.98);
+    this.strokeBeveledRect(glass, left + 7, top + 7, PANEL.width - 14, PANEL.height - 14, PANEL.bevel - 5);
+    glass.lineStyle(1, COLORS.blue, 0.62);
+    this.strokeBeveledRect(glass, left + 18, top + 18, PANEL.width - 36, PANEL.height - 36, PANEL.bevel - 14);
 
-    this.add
-      .rectangle(PANEL.x, top + 12, PANEL.width - 160, 2, COLORS.white, 0.6)
-      .setDepth(2);
-    this.add
-      .rectangle(PANEL.x, top + 24, PANEL.width - 260, 3, COLORS.cyan, 0.78)
-      .setDepth(2);
-    this.add
-      .rectangle(PANEL.x, 476, 2, 72, COLORS.cyan, 0.32)
-      .setDepth(2);
+    glass.lineStyle(1, COLORS.cyan, 0.45);
+    glass.lineBetween(PANEL.x - 268, 426, PANEL.x - 66, 426);
+    glass.lineBetween(PANEL.x + 66, 426, PANEL.x + 268, 426);
+    glass.fillStyle(COLORS.cyan, 0.9);
+    glass.fillCircle(PANEL.x - 58, 426, 2);
+    glass.fillCircle(PANEL.x + 58, 426, 2);
+
+    this.add.text(PANEL.x, 426, 'CONTROLS', textStyle({
+      color: '#00e5ff',
+      fontSize: '16px',
+      fontStyle: 'bold italic',
+      letterSpacing: 4,
+      strokeThickness: 2,
+    })).setOrigin(0.5).setDepth(4);
   }
 
   private drawStartButton(button: Phaser.GameObjects.Graphics, isHover: boolean): void {
     const left = START_BUTTON.x - START_BUTTON.width / 2;
     const top = START_BUTTON.y - START_BUTTON.height / 2;
-    const fill = isHover ? COLORS.white : COLORS.cyan;
+    const fill = isHover ? 0x0a2636 : 0x06131f;
     const glow = isHover ? COLORS.white : COLORS.cyan;
 
     button.clear();
-    button.fillStyle(glow, isHover ? 0.3 : 0.22);
+    button.fillStyle(glow, isHover ? 0.24 : 0.14);
     this.fillBeveledRect(button, left - 12, top - 12, START_BUTTON.width + 24, START_BUTTON.height + 24, START_BUTTON.bevel + 8);
-    button.fillStyle(fill, isHover ? 0.96 : 0.9);
+    button.fillStyle(fill, 0.98);
     this.fillBeveledRect(button, left, top, START_BUTTON.width, START_BUTTON.height, START_BUTTON.bevel);
-    button.lineStyle(2, COLORS.white, 0.82);
+    button.lineStyle(2, COLORS.lightCyan, 0.84);
     this.strokeBeveledRect(button, left + 8, top + 8, START_BUTTON.width - 16, START_BUTTON.height - 16, START_BUTTON.bevel - 8);
-    button.lineStyle(3, COLORS.cyan, isHover ? 0.45 : 0.95);
+    button.lineStyle(3, COLORS.cyan, isHover ? 1 : 0.92);
     this.strokeBeveledRect(button, left - 1, top - 1, START_BUTTON.width + 2, START_BUTTON.height + 2, START_BUTTON.bevel + 2);
 
-    for (let x = left + 18; x < left + START_BUTTON.width - 18; x += 12) {
-      button.lineStyle(1, COLORS.darkNavy, 0.08);
-      button.beginPath();
-      button.moveTo(x, top + 12);
-      button.lineTo(x + 8, top + START_BUTTON.height - 12);
-      button.strokePath();
-    }
+    button.lineStyle(2, COLORS.cyan, isHover ? 1 : 0.8);
+    this.drawChevrons(button, left + 62, START_BUTTON.y, 1);
+    this.drawChevrons(button, left + START_BUTTON.width - 62, START_BUTTON.y, -1);
   }
 
   private addControlCards(): void {
     if (this.usesTouchControls) {
-      this.addControlCard(500, 476, 250, 82, 'DRAG', 'MOVE', 'touch');
-      this.addControlCard(780, 476, 250, 82, 'FLICK', 'BOOST', 'boost');
-      this.addControlCard(500, 566, 220, 78, 'TAP', 'PAUSE', 'pause');
-      this.addControlCard(780, 566, 220, 78, 'TAP', 'TILT', 'touch');
+      this.addControlCard(490, 486, 260, 76, 'DRAG', 'MOVE', 'touch');
+      this.addControlCard(790, 486, 260, 76, 'FLICK', 'BOOST', 'boost');
+      this.addControlCard(490, 572, 300, 74, 'TAP', 'PAUSE', 'pause');
+      this.addControlCard(790, 572, 300, 74, 'TAP', 'TILT', 'touch');
       this.addWinConditionFooter();
       return;
     }
 
-    this.addControlCard(500, 476, 250, 82, 'WASD', 'MOVE', 'wasd');
-    this.addControlCard(780, 476, 250, 82, 'ARROWS', 'MOVE', 'arrows');
-    this.addControlCard(470, 566, 160, 78, 'ESC', 'PAUSE', 'pause');
-    this.addControlCard(840, 566, 220, 78, 'SPACE', 'BOOST', 'boost');
+    this.addControlCard(490, 486, 260, 76, 'WASD', 'MOVE', 'wasd');
+    this.addControlCard(790, 486, 260, 76, 'ARROWS', 'MOVE', 'arrows');
+    this.addControlCard(490, 572, 300, 74, 'ESC', 'PAUSE', 'pause');
+    this.addControlCard(790, 572, 300, 74, 'SPACE', 'BOOST', 'boost');
     this.addWinConditionFooter();
   }
 
@@ -196,22 +236,23 @@ export class MenuScene extends Phaser.Scene {
     const top = y - height / 2;
     const bevel = width > 220 ? 24 : 18;
 
-    card.fillStyle(COLORS.darkNavy, 0.74);
+    card.fillStyle(COLORS.darkNavy, 0.58);
     this.fillBeveledRect(card, left, top, width, height, bevel);
-    card.lineStyle(1, COLORS.cyan, 0.55);
+    card.lineStyle(1, COLORS.cyan, 0.34);
     this.strokeBeveledRect(card, left, top, width, height, bevel);
     card.lineStyle(1, COLORS.cyanSoft, 0.16);
     this.strokeBeveledRect(card, left + 8, top + 8, width - 16, height - 16, Math.max(8, bevel - 8));
 
-    const iconX = left + (width > 220 ? 62 : 44);
+    const iconX = left + 64;
     this.addCardIcon(iconX, y, icon);
-    const textX = left + (width > 220 ? 122 : 84);
+    const textX = left + 126;
 
     this.add
       .text(textX, y - 12, title, textStyle({
         color: '#f8fbff',
-        fontSize: width > 220 ? '24px' : '21px',
+        fontSize: '23px',
         fontStyle: 'bold',
+        letterSpacing: 2,
         strokeThickness: 4,
       }))
       .setOrigin(0, 0.5)
@@ -220,8 +261,9 @@ export class MenuScene extends Phaser.Scene {
     this.add
       .text(textX, y + 22, subtitle, textStyle({
         color: icon === 'boost' ? '#00e5ff' : '#d8f8ff',
-        fontSize: icon === 'boost' ? '17px' : '15px',
+        fontSize: '14px',
         fontStyle: icon === 'boost' ? 'bold' : '',
+        letterSpacing: 2,
         strokeThickness: 3,
       }))
       .setOrigin(0, 0.5)
@@ -230,20 +272,37 @@ export class MenuScene extends Phaser.Scene {
 
   private addWinConditionFooter(): void {
     this.add
-      .rectangle(PANEL.x - 126, 626, 78, 2, COLORS.cyan, 0.72)
+      .rectangle(PANEL.x - 176, 650, 92, 1, COLORS.cyan, 0.62)
       .setDepth(4);
     this.add
-      .rectangle(PANEL.x + 126, 626, 78, 2, COLORS.cyan, 0.72)
+      .rectangle(PANEL.x + 176, 650, 92, 1, COLORS.cyan, 0.62)
       .setDepth(4);
     this.add
-      .text(PANEL.x, 624, 'FIRST TO 7 WINS', textStyle({
+      .text(PANEL.x, 648, 'FIRST TO  7  WINS', textStyle({
         color: '#d8f8ff',
         fontSize: '17px',
-        fontStyle: 'bold',
+        fontStyle: 'bold italic',
+        letterSpacing: 3,
         strokeThickness: 3,
       }))
       .setOrigin(0.5)
       .setDepth(4);
+  }
+
+  private drawChevrons(
+    graphics: Phaser.GameObjects.Graphics,
+    x: number,
+    y: number,
+    direction: 1 | -1,
+  ): void {
+    for (let index = -1; index <= 1; index += 1) {
+      const centerX = x + index * 15 * direction;
+      graphics.beginPath();
+      graphics.moveTo(centerX - 7 * direction, y - 10);
+      graphics.lineTo(centerX + 3 * direction, y);
+      graphics.lineTo(centerX - 7 * direction, y + 10);
+      graphics.strokePath();
+    }
   }
 
   private addCardIcon(x: number, y: number, icon: 'wasd' | 'arrows' | 'pause' | 'reset' | 'boost' | 'touch'): void {

@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../constants/gameplay';
 import { Table } from '../objects/Table';
-import { textStyle } from '../ui/text';
+import { displayTextStyle, textStyle } from '../ui/text';
+import { applyRenderScale } from '../utils/renderScale';
 
 type GameOverData = {
   winner: 'player' | 'cpu';
@@ -25,14 +26,16 @@ export class GameOverScene extends Phaser.Scene {
   }
 
   create(): void {
+    applyRenderScale(this);
+
     new Table(this).draw();
 
     const playerWon = this.dataFromGame.winner === 'player';
     this.add
-      .text(GAME_WIDTH / 2, 180, playerWon ? 'PLAYER WINS' : 'CPU WINS', textStyle({
+      .text(GAME_WIDTH / 2, 180, playerWon ? 'PLAYER WINS' : 'CPU WINS', displayTextStyle({
         color: playerWon ? '#00e5ff' : '#ff2bd6',
         fontSize: '58px',
-        fontStyle: 'bold',
+        fontStyle: '700',
       }))
       .setOrigin(0.5)
       .setShadow(0, 0, playerWon ? '#00e5ff' : '#ff2bd6', 18, true, true);
@@ -42,9 +45,10 @@ export class GameOverScene extends Phaser.Scene {
         GAME_WIDTH / 2,
         270,
         `${this.dataFromGame.playerScore}  -  ${this.dataFromGame.cpuScore}`,
-        textStyle({
+        displayTextStyle({
           color: '#f8fbff',
           fontSize: '56px',
+          fontStyle: '700',
         }),
       )
       .setOrigin(0.5);
@@ -63,11 +67,21 @@ export class GameOverScene extends Phaser.Scene {
 
   private makeButton(x: number, y: number, label: string): Phaser.GameObjects.Text {
     const button = this.add
-      .text(x, y, label, textStyle({
+      .text(x, y, label, displayTextStyle({
         color: '#030509',
         backgroundColor: '#00e5ff',
         fontSize: '25px',
+        fontStyle: '700',
         padding: { x: 28, y: 12 },
+        shadow: {
+          color: 'transparent',
+          blur: 0,
+          fill: false,
+          offsetX: 0,
+          offsetY: 0,
+          stroke: false,
+        },
+        strokeThickness: 0,
       }))
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
