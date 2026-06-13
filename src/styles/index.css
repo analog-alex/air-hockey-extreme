@@ -9,6 +9,8 @@ body,
 
 body {
   overflow: hidden;
+  overscroll-behavior: none;
+  user-select: none;
   background:
     radial-gradient(circle at 50% 50%, rgba(0, 224, 255, 0.12), transparent 40%),
     #030509;
@@ -26,4 +28,5 @@ body {
 canvas {
   display: block;
   image-rendering: auto;
+  touch-action: none;
 }
