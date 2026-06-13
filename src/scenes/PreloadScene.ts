@@ -28,8 +28,8 @@ export class PreloadScene extends Phaser.Scene {
       fill.width = 360 * value;
     });
 
-    this.load.image('handle', handleUrl);
-    this.load.image('puck', puckUrl);
+    this.load.svg('handle', handleUrl, { width: 256, height: 256 });
+    this.load.svg('puck', puckUrl, { width: 128, height: 128 });
     this.load.image('rink', rinkUrl);
 
     this.load.once('complete', () => {
