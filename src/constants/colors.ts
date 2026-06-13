@@ -1,3 +1,4 @@
+/** Numeric Phaser color values. Hex string companions live in theme.ts. */
 export const COLORS = {
   background: 0x030509,
   cyan: 0x00e5ff,

@@ -1,14 +1,11 @@
 import Phaser from 'phaser';
-import { GAME_HEIGHT, GAME_WIDTH } from '../constants/gameplay';
+import { GAME_WIDTH } from '../constants/gameplay';
+import { THEME } from '../constants/theme';
 import { Table } from '../objects/Table';
-import { displayTextStyle, textStyle } from '../ui/text';
+import type { GameOverData } from '../types/game';
+import { createCyanButton } from '../ui/cyanButton';
+import { displayTextStyle } from '../ui/text';
 import { applyRenderScale } from '../utils/renderScale';
-
-type GameOverData = {
-  winner: 'player' | 'cpu';
-  playerScore: number;
-  cpuScore: number;
-};
 
 export class GameOverScene extends Phaser.Scene {
   private dataFromGame: GameOverData = {
@@ -31,14 +28,16 @@ export class GameOverScene extends Phaser.Scene {
     new Table(this).draw();
 
     const playerWon = this.dataFromGame.winner === 'player';
+    const accentColor = playerWon ? THEME.cyan : THEME.magenta;
+
     this.add
       .text(GAME_WIDTH / 2, 180, playerWon ? 'PLAYER WINS' : 'CPU WINS', displayTextStyle({
-        color: playerWon ? '#00e5ff' : '#ff2bd6',
+        color: accentColor,
         fontSize: '58px',
         fontStyle: '700',
       }))
       .setOrigin(0.5)
-      .setShadow(0, 0, playerWon ? '#00e5ff' : '#ff2bd6', 18, true, true);
+      .setShadow(0, 0, accentColor, 18, true, true);
 
     this.add
       .text(
@@ -46,15 +45,15 @@ export class GameOverScene extends Phaser.Scene {
         270,
         `${this.dataFromGame.playerScore}  -  ${this.dataFromGame.cpuScore}`,
         displayTextStyle({
-          color: '#f8fbff',
+          color: THEME.textPrimary,
           fontSize: '56px',
           fontStyle: '700',
         }),
       )
       .setOrigin(0.5);
 
-    const restart = this.makeButton(GAME_WIDTH / 2, 392, 'RESTART');
-    const menu = this.makeButton(GAME_WIDTH / 2, 474, 'MENU');
+    const restart = createCyanButton(this, GAME_WIDTH / 2, 392, 'RESTART');
+    const menu = createCyanButton(this, GAME_WIDTH / 2, 474, 'MENU');
 
     restart.on('pointerdown', () => this.scene.start('GameScene'));
     menu.on('pointerdown', () => this.scene.start('MenuScene'));
@@ -63,32 +62,5 @@ export class GameOverScene extends Phaser.Scene {
     keyboard?.once('keydown-R', () => this.scene.start('GameScene'));
     keyboard?.once('keydown-ENTER', () => this.scene.start('GameScene'));
     keyboard?.once('keydown-ESC', () => this.scene.start('MenuScene'));
-  }
-
-  private makeButton(x: number, y: number, label: string): Phaser.GameObjects.Text {
-    const button = this.add
-      .text(x, y, label, displayTextStyle({
-        color: '#030509',
-        backgroundColor: '#00e5ff',
-        fontSize: '25px',
-        fontStyle: '700',
-        padding: { x: 28, y: 12 },
-        shadow: {
-          color: 'transparent',
-          blur: 0,
-          fill: false,
-          offsetX: 0,
-          offsetY: 0,
-          stroke: false,
-        },
-        strokeThickness: 0,
-      }))
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true });
-
-    button.on('pointerover', () => button.setStyle({ backgroundColor: '#f8fbff' }));
-    button.on('pointerout', () => button.setStyle({ backgroundColor: '#00e5ff' }));
-
-    return button;
   }
 }

@@ -4,6 +4,7 @@ import puckUrl from '../../assets/puck.svg?url';
 import rinkUrl from '../../assets/rink.png?url';
 import { COLORS } from '../constants/colors';
 import { GAME_HEIGHT, GAME_WIDTH } from '../constants/gameplay';
+import { THEME } from '../constants/theme';
 import { textStyle } from '../ui/text';
 import { applyRenderScale } from '../utils/renderScale';
 
@@ -17,7 +18,7 @@ export class PreloadScene extends Phaser.Scene {
 
     this.add
       .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'LOADING GLIDE.EXE', textStyle({
-        color: '#f8fbff',
+        color: THEME.textPrimary,
         fontSize: '28px',
       }))
       .setOrigin(0.5);

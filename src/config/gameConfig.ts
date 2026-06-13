@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../constants/gameplay';
+import { THEME } from '../constants/theme';
 import { BootScene } from '../scenes/BootScene';
 import { GameOverScene } from '../scenes/GameOverScene';
 import { GameScene } from '../scenes/GameScene';
@@ -12,7 +13,7 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
   parent: 'game',
   width: GAME_WIDTH * RENDER_SCALE,
   height: GAME_HEIGHT * RENDER_SCALE,
-  backgroundColor: '#030509',
+  backgroundColor: THEME.background,
   render: {
     antialias: true,
     roundPixels: true,
