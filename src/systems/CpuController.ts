@@ -1,9 +1,8 @@
 import Phaser from 'phaser';
 import { GAMEPLAY, RINK } from '../constants/gameplay';
+import { type CpuState, pickCpuState } from '../logic/cpuState';
 import type { Paddle } from '../objects/Paddle';
 import type { Puck } from '../objects/Puck';
-
-type CpuState = 'guard' | 'intercept' | 'counter' | 'recover';
 
 export class CpuController {
   private targetX = RINK.x + RINK.width - 145;
@@ -43,31 +42,14 @@ export class CpuController {
   }
 
   private pickState(): CpuState {
-    if (this.recoveryTimer > 0) {
-      return 'recover';
-    }
-
-    const puckInCpuHalf = this.puck.x > GAMEPLAY.cpuHalfMinX;
-    const distanceToPuck = Phaser.Math.Distance.Between(
-      this.paddle.x,
-      this.paddle.y,
-      this.puck.x,
-      this.puck.y,
-    );
-
-    if (
-      puckInCpuHalf &&
-      this.puck.isSlowEnoughForCpuAttack() &&
-      distanceToPuck <= GAMEPLAY.cpuAttackRadius
-    ) {
-      return 'counter';
-    }
-
-    if (puckInCpuHalf) {
-      return 'intercept';
-    }
-
-    return 'guard';
+    return pickCpuState({
+      recoveryTimer: this.recoveryTimer,
+      puckX: this.puck.x,
+      puckY: this.puck.y,
+      puckSpeed: this.puck.getGameplaySpeed(),
+      paddleX: this.paddle.x,
+      paddleY: this.paddle.y,
+    });
   }
 
   private getTargetForState(): { x: number; y: number; speed: number } {

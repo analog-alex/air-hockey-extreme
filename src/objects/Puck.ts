@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
-import { fromMatterVelocity, GAMEPLAY, RINK, TABLE, toMatterVelocity } from '../constants/gameplay';
+import { fromMatterVelocity, GAMEPLAY, RINK, toMatterVelocity } from '../constants/gameplay';
+import { detectGoal } from '../logic/goalDetection';
+import { predictPuckYAtX } from '../logic/puckPrediction';
 
 export class Puck extends Phaser.Physics.Matter.Image {
   private maxSpeedOverrideTimer = 0;
@@ -133,47 +135,17 @@ export class Puck extends Phaser.Physics.Matter.Image {
 
   predictYAtX(targetX: number): number {
     const velocity = this.getGameplayVelocity();
-    if (Math.abs(velocity.x) < 1) {
-      return Phaser.Math.Clamp(
-        this.y,
-        RINK.y + GAMEPLAY.puckRadius,
-        RINK.y + RINK.height - GAMEPLAY.puckRadius,
-      );
-    }
-
-    const timeToTarget = (targetX - this.x) / velocity.x;
-    if (timeToTarget <= 0) {
-      return this.y;
-    }
-
-    const minY = RINK.y + GAMEPLAY.puckRadius;
-    const maxY = RINK.y + RINK.height - GAMEPLAY.puckRadius;
-    const travelHeight = maxY - minY;
-    const rawY = this.y + velocity.y * timeToTarget;
-    const wrapped = Phaser.Math.Wrap(rawY - minY, 0, travelHeight * 2);
-    const reflected = wrapped > travelHeight ? travelHeight * 2 - wrapped : wrapped;
-
-    return minY + reflected;
+    return predictPuckYAtX({ x: this.x, y: this.y, vx: velocity.x, vy: velocity.y }, targetX);
   }
 
   handleTableWalls(): 'player' | 'cpu' | null {
-    const leftGoal = RINK.x + RINK.goalLineInset;
-    const rightGoal = RINK.x + RINK.width - RINK.goalLineInset;
+    const scorer = detectGoal(this.x, this.y);
+    if (scorer) {
+      return scorer;
+    }
+
     const top = RINK.y + GAMEPLAY.puckRadius;
     const bottom = RINK.y + RINK.height - GAMEPLAY.puckRadius;
-    const goalTop = RINK.y + RINK.height / 2 - TABLE.goalWidth / 2;
-    const goalBottom = RINK.y + RINK.height / 2 + TABLE.goalWidth / 2;
-    const isInGoalMouth = this.y >= goalTop && this.y <= goalBottom;
-
-    if (this.x <= leftGoal) {
-      if (isInGoalMouth) {
-        return 'cpu';
-      }
-    } else if (this.x >= rightGoal) {
-      if (isInGoalMouth) {
-        return 'player';
-      }
-    }
 
     const velocity = this.getVelocity();
     if (this.y <= top) {
