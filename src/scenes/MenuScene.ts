@@ -166,7 +166,7 @@ export class MenuScene extends Phaser.Scene {
     this.addControlCard(500, 476, 250, 82, 'WASD', 'MOVE', 'wasd');
     this.addControlCard(780, 476, 250, 82, 'ARROWS', 'MOVE', 'arrows');
     this.addControlCard(470, 566, 160, 78, 'ESC', 'PAUSE', 'pause');
-    this.addControlCard(840, 566, 220, 78, 'SPACE', 'FLICK', 'flick');
+    this.addControlCard(840, 566, 220, 78, 'SPACE', 'BOOST', 'boost');
     this.addWinConditionFooter();
   }
 
@@ -177,7 +177,7 @@ export class MenuScene extends Phaser.Scene {
     height: number,
     title: string,
     subtitle: string,
-    icon: 'wasd' | 'arrows' | 'pause' | 'reset' | 'flick',
+    icon: 'wasd' | 'arrows' | 'pause' | 'reset' | 'boost',
   ): void {
     const card = this.add.graphics().setDepth(3);
     const left = x - width / 2;
@@ -207,9 +207,9 @@ export class MenuScene extends Phaser.Scene {
 
     this.add
       .text(textX, y + 22, subtitle, textStyle({
-        color: icon === 'flick' ? '#00e5ff' : '#d8f8ff',
-        fontSize: icon === 'flick' ? '17px' : '15px',
-        fontStyle: icon === 'flick' ? 'bold' : '',
+        color: icon === 'boost' ? '#00e5ff' : '#d8f8ff',
+        fontSize: icon === 'boost' ? '17px' : '15px',
+        fontStyle: icon === 'boost' ? 'bold' : '',
         strokeThickness: 3,
       }))
       .setOrigin(0, 0.5)
@@ -234,7 +234,7 @@ export class MenuScene extends Phaser.Scene {
       .setDepth(4);
   }
 
-  private addCardIcon(x: number, y: number, icon: 'wasd' | 'arrows' | 'pause' | 'reset' | 'flick'): void {
+  private addCardIcon(x: number, y: number, icon: 'wasd' | 'arrows' | 'pause' | 'reset' | 'boost'): void {
     if (icon === 'wasd') {
       this.addKeycap(x, y - 17, 'W');
       this.addKeycap(x - 19, y + 2, 'A');
@@ -282,18 +282,19 @@ export class MenuScene extends Phaser.Scene {
       return;
     }
 
-    const flick = this.add.graphics().setDepth(4);
-    flick.lineStyle(3, COLORS.lightCyan, 0.88);
-    flick.strokeCircle(x - 6, y, 12);
-    flick.beginPath();
-    flick.moveTo(x + 4, y);
-    flick.lineTo(x + 26, y);
-    flick.moveTo(x + 18, y - 8);
-    flick.lineTo(x + 28, y);
-    flick.lineTo(x + 18, y + 8);
-    flick.strokePath();
-    flick.fillStyle(COLORS.cyan, 0.9);
-    flick.fillCircle(x - 6, y, 3);
+    const boost = this.add.graphics().setDepth(4);
+    boost.lineStyle(3, COLORS.lightCyan, 0.88);
+    boost.beginPath();
+    boost.moveTo(x - 18, y - 11);
+    boost.lineTo(x - 6, y);
+    boost.lineTo(x - 18, y + 11);
+    boost.moveTo(x - 2, y - 11);
+    boost.lineTo(x + 10, y);
+    boost.lineTo(x - 2, y + 11);
+    boost.moveTo(x + 14, y - 11);
+    boost.lineTo(x + 26, y);
+    boost.lineTo(x + 14, y + 11);
+    boost.strokePath();
   }
 
   private addKeycap(x: number, y: number, label: string): void {

@@ -17,13 +17,16 @@ export class GameScene extends Phaser.Scene {
   private cpuController!: CpuController;
   private score = new ScoreSystem();
   private scoreText!: Phaser.GameObjects.Text;
-  private flickCooldownText!: Phaser.GameObjects.Text;
+  private boostStaminaFill!: Phaser.GameObjects.Rectangle;
+  private boostStaminaStatus!: Phaser.GameObjects.Text;
   private pauseOverlay!: Phaser.GameObjects.Container;
   private table!: Table;
   private isPaused = false;
   private isResetting = false;
   private tiltCooldown = 0;
-  private flickCooldown = 0;
+  private boostStamina = 1;
+  private isBoosting = false;
+  private boostExhausted = false;
 
   constructor() {
     super('GameScene');
@@ -33,7 +36,9 @@ export class GameScene extends Phaser.Scene {
     this.isPaused = false;
     this.isResetting = false;
     this.tiltCooldown = 0;
-    this.flickCooldown = 0;
+    this.boostStamina = 1;
+    this.isBoosting = false;
+    this.boostExhausted = false;
     this.matter.world.resume();
 
     this.score.reset();
@@ -63,18 +68,29 @@ export class GameScene extends Phaser.Scene {
       .setDepth(60);
 
     this.add
-      .text(58, 30, 'ESC PAUSE   T TILT   SPACE FLICK', textStyle({
+      .text(58, 30, 'ESC PAUSE   T TILT   SPACE BOOST', textStyle({
         color: '#9fb8c9',
         fontSize: '16px',
       }))
       .setOrigin(0, 0.5)
       .setDepth(60);
 
-    this.flickCooldownText = this.add
-      .text(58, 58, 'SPACE FLICK READY', textStyle({
-        color: '#00e5ff',
-        fontSize: '16px',
-      }))
+    this.add
+      .text(58, 58, 'BOOST', textStyle({ color: '#d8f8ff', fontSize: '14px', fontStyle: 'bold' }))
+      .setOrigin(0, 0.5)
+      .setDepth(60);
+
+    this.add.rectangle(120, 58, 224, 12, COLORS.darkPanel, 0.9)
+      .setOrigin(0, 0.5)
+      .setStrokeStyle(1, COLORS.dimWhite, 0.7)
+      .setDepth(60);
+
+    this.boostStaminaFill = this.add.rectangle(122, 58, 220, 8, COLORS.cyan, 1)
+      .setOrigin(0, 0.5)
+      .setDepth(61);
+
+    this.boostStaminaStatus = this.add
+      .text(354, 58, 'READY', textStyle({ color: '#00e5ff', fontSize: '14px', fontStyle: 'bold' }))
       .setOrigin(0, 0.5)
       .setDepth(60);
 
@@ -83,22 +99,22 @@ export class GameScene extends Phaser.Scene {
     const keyboard = this.input.keyboard;
     keyboard?.on('keydown-ESC', () => this.togglePause());
     keyboard?.on('keydown-T', () => this.tryTiltRink());
-    keyboard?.on('keydown-SPACE', () => this.tryFlickPuck());
-
     this.puck.serve(Phaser.Math.RND.pick([1, -1]));
   }
 
   update(_time: number, delta: number): void {
     const deltaSeconds = delta / 1000;
     this.tiltCooldown = Math.max(0, this.tiltCooldown - deltaSeconds);
-    this.flickCooldown = Math.max(0, this.flickCooldown - deltaSeconds);
-    this.updateFlickCooldownText();
 
     if (this.isPaused || this.isResetting) {
       return;
     }
 
-    this.inputSystem.updatePlayer(this.player);
+    this.updateBoost(deltaSeconds);
+    const playerSpeed = GAMEPLAY.playerSpeed * (
+      this.isBoosting ? GAMEPLAY.playerBoostSpeedMultiplier : 1
+    );
+    this.inputSystem.updatePlayer(this.player, playerSpeed);
     this.cpuController.update(deltaSeconds);
     this.player.constrainToHalf();
     this.cpu.constrainToHalf();
@@ -125,7 +141,8 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    this.puck.bounceFromPaddle(paddle, toward);
+    const boostedPlayerHit = paddle === this.player && this.isBoosting;
+    this.puck.bounceFromPaddle(paddle, toward, boostedPlayerHit);
     if (paddle === this.cpu) {
       this.cpuController.onPuckHit();
     }
@@ -149,6 +166,7 @@ export class GameScene extends Phaser.Scene {
     this.player.resetToHome();
     this.cpu.resetToHome();
     this.cpuController.resetAfterGoal();
+    this.refillBoostStamina();
 
     const matchOver = this.score.addPoint(side);
     this.updateScoreText();
@@ -258,32 +276,60 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.shake(90, 0.003);
   }
 
-  private tryFlickPuck(): void {
-    if (this.isPaused || this.isResetting || this.flickCooldown > 0) {
-      return;
+  private updateBoost(deltaSeconds: number): void {
+    const boostDown = this.inputSystem.isBoostDown();
+    const isMoving = this.inputSystem.hasMovementInput();
+
+    if (!boostDown) {
+      this.boostExhausted = false;
+      this.boostStamina = Math.min(
+        1,
+        this.boostStamina + deltaSeconds / GAMEPLAY.playerBoostRechargeSeconds,
+      );
     }
 
-    const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.puck.x, this.puck.y);
-    if (distance > GAMEPLAY.puckFlickRange) {
-      return;
+    this.isBoosting = boostDown && isMoving && this.boostStamina > 0 && !this.boostExhausted;
+
+    if (this.isBoosting) {
+      this.boostStamina = Math.max(
+        0,
+        this.boostStamina - deltaSeconds / GAMEPLAY.playerBoostDrainSeconds,
+      );
+      if (this.boostStamina === 0) {
+        this.boostExhausted = true;
+      }
     }
 
-    this.puck.flick(this.inputSystem.getAimVector());
-    this.flickCooldown = GAMEPLAY.puckFlickCooldownSeconds;
-    this.updateFlickCooldownText();
-    this.cameras.main.shake(120, 0.004);
-    this.flashAt(this.puck.x, this.puck.y);
+    this.updateBoostHud();
   }
 
-  private updateFlickCooldownText(): void {
-    if (this.flickCooldown <= 0) {
-      this.flickCooldownText.setText('SPACE FLICK READY');
-      this.flickCooldownText.setColor('#00e5ff');
-      return;
+  private refillBoostStamina(): void {
+    this.boostStamina = 1;
+    this.isBoosting = false;
+    this.boostExhausted = false;
+    if (this.boostStaminaFill) {
+      this.updateBoostHud();
     }
+  }
 
-    this.flickCooldownText.setText(`SPACE FLICK ${this.flickCooldown.toFixed(1)}s`);
-    this.flickCooldownText.setColor('#9fb8c9');
+  private updateBoostHud(): void {
+    this.boostStaminaFill.width = 220 * this.boostStamina;
+    const lowStaminaRatio = Phaser.Math.Clamp(this.boostStamina / 0.3, 0, 1);
+    const red = Math.round(Phaser.Math.Linear(255, 0, lowStaminaRatio));
+    const green = Math.round(Phaser.Math.Linear(59, 229, lowStaminaRatio));
+    const blue = Math.round(Phaser.Math.Linear(104, 255, lowStaminaRatio));
+    const color = Phaser.Display.Color.GetColor(red, green, blue);
+    this.boostStaminaFill.setFillStyle(color, 1);
+
+    if (this.boostExhausted) {
+      this.boostStaminaStatus.setText('EXHAUSTED').setColor('#ff3b68');
+    } else if (this.isBoosting) {
+      this.boostStaminaStatus.setText('BOOSTING').setColor('#00e5ff');
+    } else if (this.boostStamina >= 1) {
+      this.boostStaminaStatus.setText('READY').setColor('#00e5ff');
+    } else {
+      this.boostStaminaStatus.setText(`${Math.ceil(this.boostStamina * 100)}%`).setColor('#9fb8c9');
+    }
   }
 
   private createTableWalls(): void {
@@ -366,7 +412,6 @@ export class GameScene extends Phaser.Scene {
     const keyboard = this.input.keyboard;
     keyboard?.off('keydown-ESC');
     keyboard?.off('keydown-T');
-    keyboard?.off('keydown-SPACE');
 
     // Ensure Matter world is resumed so a fresh scene (or other scenes) is never left paused.
     this.matter?.world?.resume();
