@@ -31,7 +31,6 @@ export const GAMEPLAY = {
   touchVelocitySampleMaxAgeMs: 140,
   touchMinSampleSeconds: 1 / 120,
   touchMaxSampleSeconds: 0.12,
-  cpuSpeed: 390,
   puckInitialSpeed: 1000,
   puckMaxSpeed: 1680,
   puckFrictionAir: 0.0045,

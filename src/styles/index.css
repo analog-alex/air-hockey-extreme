@@ -43,13 +43,10 @@ body {
   overflow: hidden;
   overscroll-behavior: none;
   user-select: none;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(0, 224, 255, 0.12), transparent 40%),
-    #030509;
+  background: radial-gradient(circle at 50% 50%, rgba(0, 224, 255, 0.12), transparent 40%), #030509;
   color: #f8fbff;
   font-family:
-    "Rajdhani", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+    "Rajdhani", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 #game-shell {

@@ -1,9 +1,8 @@
 import Phaser from 'phaser';
 import { GAMEPLAY, RINK } from '../constants/gameplay';
-import { Paddle } from '../objects/Paddle';
-import { Puck } from '../objects/Puck';
-
-type CpuState = 'guard' | 'intercept' | 'counter' | 'recover';
+import { type CpuState, pickCpuState } from '../logic/cpuState';
+import type { Paddle } from '../objects/Paddle';
+import type { Puck } from '../objects/Puck';
 
 export class CpuController {
   private targetX = RINK.x + RINK.width - 145;
@@ -22,7 +21,7 @@ export class CpuController {
     this.state = this.pickState();
 
     const target = this.getTargetForState();
-    const lerpAmount = 1 - Math.pow(GAMEPLAY.cpuReaction, deltaSeconds * 8);
+    const lerpAmount = 1 - GAMEPLAY.cpuReaction ** (deltaSeconds * 8);
 
     this.targetX = Phaser.Math.Linear(this.targetX, target.x, lerpAmount);
     this.targetY = Phaser.Math.Linear(this.targetY, target.y, lerpAmount);
@@ -43,27 +42,14 @@ export class CpuController {
   }
 
   private pickState(): CpuState {
-    if (this.recoveryTimer > 0) {
-      return 'recover';
-    }
-
-    const puckInCpuHalf = this.puck.x > GAMEPLAY.cpuHalfMinX;
-    const distanceToPuck = Phaser.Math.Distance.Between(
-      this.paddle.x,
-      this.paddle.y,
-      this.puck.x,
-      this.puck.y,
-    );
-
-    if (puckInCpuHalf && this.puck.isSlowEnoughForCpuAttack() && distanceToPuck <= GAMEPLAY.cpuAttackRadius) {
-      return 'counter';
-    }
-
-    if (puckInCpuHalf) {
-      return 'intercept';
-    }
-
-    return 'guard';
+    return pickCpuState({
+      recoveryTimer: this.recoveryTimer,
+      puckX: this.puck.x,
+      puckY: this.puck.y,
+      puckSpeed: this.puck.getGameplaySpeed(),
+      paddleX: this.paddle.x,
+      paddleY: this.paddle.y,
+    });
   }
 
   private getTargetForState(): { x: number; y: number; speed: number } {
@@ -91,7 +77,6 @@ export class CpuController {
           y: RINK.y + RINK.height / 2 + this.aimError * 0.5,
           speed: GAMEPLAY.cpuGuardSpeed,
         };
-      case 'guard':
       default:
         return {
           x: RINK.x + RINK.width - GAMEPLAY.cpuGuardOffset,

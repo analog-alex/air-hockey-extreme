@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
-import { GAMEPLAY, RINK, TABLE, fromMatterVelocity, toMatterVelocity } from '../constants/gameplay';
+import { fromMatterVelocity, GAMEPLAY, RINK, toMatterVelocity } from '../constants/gameplay';
+import { detectGoal } from '../logic/goalDetection';
+import { predictPuckYAtX } from '../logic/puckPrediction';
 
 export class Puck extends Phaser.Physics.Matter.Image {
   private maxSpeedOverrideTimer = 0;
@@ -47,11 +49,7 @@ export class Puck extends Phaser.Physics.Matter.Image {
     const paddleVelocity = paddle.getVelocity();
     const currentSpeed = this.toGameplaySpeed(Math.hypot(velocity.x, velocity.y));
     const paddleSpeed = this.toGameplaySpeed(Math.hypot(paddleVelocity.x, paddleVelocity.y));
-    const offset = Phaser.Math.Clamp(
-      (this.y - paddle.y) / GAMEPLAY.paddleRadius,
-      -1,
-      1,
-    );
+    const offset = Phaser.Math.Clamp((this.y - paddle.y) / GAMEPLAY.paddleRadius, -1, 1);
     const nextSpeed = Math.min(
       Math.max(currentSpeed, GAMEPLAY.puckMomentumBoost) +
         GAMEPLAY.puckSpeedIncreasePerHit +
@@ -73,18 +71,12 @@ export class Puck extends Phaser.Physics.Matter.Image {
     }
 
     this.setScaledVelocity(vx, vy);
-    this.setPosition(
-      paddle.x + toward * (GAMEPLAY.paddleRadius + GAMEPLAY.puckRadius + 2),
-      this.y,
-    );
+    this.setPosition(paddle.x + toward * (GAMEPLAY.paddleRadius + GAMEPLAY.puckRadius + 2), this.y);
   }
 
   tiltTowardPlayer(): void {
     const angle = Phaser.Math.DegToRad(
-      180 + Phaser.Math.Between(
-        -GAMEPLAY.tiltAngleSpreadDegrees,
-        GAMEPLAY.tiltAngleSpreadDegrees,
-      ),
+      180 + Phaser.Math.Between(-GAMEPLAY.tiltAngleSpreadDegrees, GAMEPLAY.tiltAngleSpreadDegrees),
     );
     const speed = Phaser.Math.Between(GAMEPLAY.tiltMinSpeed, GAMEPLAY.tiltMaxSpeed);
 
@@ -100,7 +92,10 @@ export class Puck extends Phaser.Physics.Matter.Image {
 
     if (speed > GAMEPLAY.puckMaxSpeed && this.maxSpeedOverrideTimer <= 0) {
       const maxMatterSpeed = toMatterVelocity(GAMEPLAY.puckMaxSpeed);
-      this.setVelocity((velocity.x / length) * maxMatterSpeed, (velocity.y / length) * maxMatterSpeed);
+      this.setVelocity(
+        (velocity.x / length) * maxMatterSpeed,
+        (velocity.y / length) * maxMatterSpeed,
+      );
       return;
     }
 
@@ -110,7 +105,10 @@ export class Puck extends Phaser.Physics.Matter.Image {
         GAMEPLAY.puckJitterSpeed * 0.25,
         GAMEPLAY.puckJitterSpeed,
       );
-      this.setScaledVelocity(Math.cos(jitterAngle) * jitterSpeed, Math.sin(jitterAngle) * jitterSpeed);
+      this.setScaledVelocity(
+        Math.cos(jitterAngle) * jitterSpeed,
+        Math.sin(jitterAngle) * jitterSpeed,
+      );
     }
   }
 
@@ -137,47 +135,17 @@ export class Puck extends Phaser.Physics.Matter.Image {
 
   predictYAtX(targetX: number): number {
     const velocity = this.getGameplayVelocity();
-    if (Math.abs(velocity.x) < 1) {
-      return Phaser.Math.Clamp(
-        this.y,
-        RINK.y + GAMEPLAY.puckRadius,
-        RINK.y + RINK.height - GAMEPLAY.puckRadius,
-      );
-    }
-
-    const timeToTarget = (targetX - this.x) / velocity.x;
-    if (timeToTarget <= 0) {
-      return this.y;
-    }
-
-    const minY = RINK.y + GAMEPLAY.puckRadius;
-    const maxY = RINK.y + RINK.height - GAMEPLAY.puckRadius;
-    const travelHeight = maxY - minY;
-    const rawY = this.y + velocity.y * timeToTarget;
-    const wrapped = Phaser.Math.Wrap(rawY - minY, 0, travelHeight * 2);
-    const reflected = wrapped > travelHeight ? travelHeight * 2 - wrapped : wrapped;
-
-    return minY + reflected;
+    return predictPuckYAtX({ x: this.x, y: this.y, vx: velocity.x, vy: velocity.y }, targetX);
   }
 
   handleTableWalls(): 'player' | 'cpu' | null {
-    const leftGoal = RINK.x + RINK.goalLineInset;
-    const rightGoal = RINK.x + RINK.width - RINK.goalLineInset;
+    const scorer = detectGoal(this.x, this.y);
+    if (scorer) {
+      return scorer;
+    }
+
     const top = RINK.y + GAMEPLAY.puckRadius;
     const bottom = RINK.y + RINK.height - GAMEPLAY.puckRadius;
-    const goalTop = RINK.y + RINK.height / 2 - TABLE.goalWidth / 2;
-    const goalBottom = RINK.y + RINK.height / 2 + TABLE.goalWidth / 2;
-    const isInGoalMouth = this.y >= goalTop && this.y <= goalBottom;
-
-    if (this.x <= leftGoal) {
-      if (isInGoalMouth) {
-        return 'cpu';
-      }
-    } else if (this.x >= rightGoal) {
-      if (isInGoalMouth) {
-        return 'player';
-      }
-    }
 
     const velocity = this.getVelocity();
     if (this.y <= top) {

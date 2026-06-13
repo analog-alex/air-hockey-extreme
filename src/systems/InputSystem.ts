@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { GAMEPLAY, RINK } from '../constants/gameplay';
-import { Paddle } from '../objects/Paddle';
+import type { Paddle } from '../objects/Paddle';
 import { isTouchFirstDevice } from '../utils/device';
 
 export class InputSystem {
@@ -113,20 +113,19 @@ export class InputSystem {
       return;
     }
 
-    paddle.move(
-      (x / length) * speed,
-      (y / length) * speed,
-    );
+    paddle.move((x / length) * speed, (y / length) * speed);
   }
 
   hasMovementInput(): boolean {
     if (this.activeTouchId !== null && this.player) {
-      return Phaser.Math.Distance.Between(
-        this.player.x,
-        this.player.y,
-        this.touchTarget.x,
-        this.touchTarget.y,
-      ) > GAMEPLAY.touchDeadZone;
+      return (
+        Phaser.Math.Distance.Between(
+          this.player.x,
+          this.player.y,
+          this.touchTarget.x,
+          this.touchTarget.y,
+        ) > GAMEPLAY.touchDeadZone
+      );
     }
 
     const { x, y } = this.getInputVector();

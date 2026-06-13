@@ -56,9 +56,6 @@ export class Paddle extends Phaser.Physics.Matter.Image {
     const minY = RINK.y + GAMEPLAY.paddleRadius;
     const maxY = RINK.y + RINK.height - GAMEPLAY.paddleRadius;
 
-    this.setPosition(
-      Phaser.Math.Clamp(this.x, minX, maxX),
-      Phaser.Math.Clamp(this.y, minY, maxY),
-    );
+    this.setPosition(Phaser.Math.Clamp(this.x, minX, maxX), Phaser.Math.Clamp(this.y, minY, maxY));
   }
 }
