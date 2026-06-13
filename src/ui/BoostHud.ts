@@ -15,16 +15,23 @@ export class BoostHud {
 
   constructor(scene: Phaser.Scene) {
     scene.add
-      .text(58, 58, 'BOOST', textStyle({ color: THEME.textPale, fontSize: '14px', fontStyle: 'bold' }))
+      .text(
+        58,
+        58,
+        'BOOST',
+        textStyle({ color: THEME.textPale, fontSize: '14px', fontStyle: 'bold' }),
+      )
       .setOrigin(0, 0.5)
       .setDepth(60);
 
-    scene.add.rectangle(120, 58, 224, 12, COLORS.darkPanel, 0.9)
+    scene.add
+      .rectangle(120, 58, 224, 12, COLORS.darkPanel, 0.9)
       .setOrigin(0, 0.5)
       .setStrokeStyle(1, COLORS.dimWhite, 0.7)
       .setDepth(60);
 
-    this.staminaFill = scene.add.rectangle(122, 58, BAR_WIDTH, 8, COLORS.cyan, 1)
+    this.staminaFill = scene.add
+      .rectangle(122, 58, BAR_WIDTH, 8, COLORS.cyan, 1)
       .setOrigin(0, 0.5)
       .setDepth(61);
 
@@ -41,19 +48,13 @@ export class BoostHud {
   update(deltaSeconds: number, boostDown: boolean, isMoving: boolean): void {
     if (!boostDown) {
       this.exhausted = false;
-      this.stamina = Math.min(
-        1,
-        this.stamina + deltaSeconds / GAMEPLAY.playerBoostRechargeSeconds,
-      );
+      this.stamina = Math.min(1, this.stamina + deltaSeconds / GAMEPLAY.playerBoostRechargeSeconds);
     }
 
     this.isBoosting = boostDown && isMoving && this.stamina > 0 && !this.exhausted;
 
     if (this.isBoosting) {
-      this.stamina = Math.max(
-        0,
-        this.stamina - deltaSeconds / GAMEPLAY.playerBoostDrainSeconds,
-      );
+      this.stamina = Math.max(0, this.stamina - deltaSeconds / GAMEPLAY.playerBoostDrainSeconds);
       if (this.stamina === 0) {
         this.exhausted = true;
       }

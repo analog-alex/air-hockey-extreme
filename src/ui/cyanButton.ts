@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 import { THEME } from '../constants/theme';
 import { displayTextStyle, textStyle } from './text';
 
@@ -29,22 +29,27 @@ export function createCyanButton(
 
   const styleFn = displayFont ? displayTextStyle : textStyle;
   const button = scene.add
-    .text(x, y, label, styleFn({
-      color: THEME.buttonText,
-      backgroundColor: THEME.buttonBg,
-      fontSize,
-      fontStyle: displayFont ? '700' : 'bold',
-      padding,
-      shadow: {
-        color: 'transparent',
-        blur: 0,
-        fill: false,
-        offsetX: 0,
-        offsetY: 0,
-        stroke: false,
-      },
-      strokeThickness: displayFont ? 0 : undefined,
-    }))
+    .text(
+      x,
+      y,
+      label,
+      styleFn({
+        color: THEME.buttonText,
+        backgroundColor: THEME.buttonBg,
+        fontSize,
+        fontStyle: displayFont ? '700' : 'bold',
+        padding,
+        shadow: {
+          color: 'transparent',
+          blur: 0,
+          fill: false,
+          offsetX: 0,
+          offsetY: 0,
+          stroke: false,
+        },
+        strokeThickness: displayFont ? 0 : undefined,
+      }),
+    )
     .setOrigin(0.5)
     .setInteractive({ useHandCursor });
 

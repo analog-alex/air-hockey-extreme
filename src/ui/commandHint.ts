@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 import { COLORS } from '../constants/colors';
 import { THEME } from '../constants/theme';
 import { textStyle } from './text';
@@ -20,7 +20,13 @@ const KEYBOARD_COMMANDS: CommandHint[] = [
   { key: 'SPACE', action: 'BOOST', width: 148 },
 ];
 
-function createCommandHint(scene: Phaser.Scene, x: number, y: number, key: string, action: string): void {
+function createCommandHint(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  key: string,
+  action: string,
+): void {
   const keyWidth = Math.max(30, key.length * 10 + 16);
   const keycap = scene.add.graphics().setDepth(60);
 
@@ -32,24 +38,34 @@ function createCommandHint(scene: Phaser.Scene, x: number, y: number, key: strin
   keycap.lineBetween(x + 6, y + 8, x + keyWidth - 6, y + 8);
 
   scene.add
-    .text(x + keyWidth / 2, y, key, textStyle({
-      color: THEME.textPrimary,
-      fontSize: '14px',
-      fontStyle: 'bold',
-      letterSpacing: 1,
-      strokeThickness: 2,
-    }))
+    .text(
+      x + keyWidth / 2,
+      y,
+      key,
+      textStyle({
+        color: THEME.textPrimary,
+        fontSize: '14px',
+        fontStyle: 'bold',
+        letterSpacing: 1,
+        strokeThickness: 2,
+      }),
+    )
     .setOrigin(0.5)
     .setDepth(61);
 
   scene.add
-    .text(x + keyWidth + 9, y, action, textStyle({
-      color: THEME.textMuted,
-      fontSize: '14px',
-      fontStyle: 'bold',
-      letterSpacing: 1,
-      strokeThickness: 2,
-    }))
+    .text(
+      x + keyWidth + 9,
+      y,
+      action,
+      textStyle({
+        color: THEME.textMuted,
+        fontSize: '14px',
+        fontStyle: 'bold',
+        letterSpacing: 1,
+        strokeThickness: 2,
+      }),
+    )
     .setOrigin(0, 0.5)
     .setDepth(60);
 }

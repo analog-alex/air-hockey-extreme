@@ -31,11 +31,16 @@ export class GameOverScene extends Phaser.Scene {
     const accentColor = playerWon ? THEME.cyan : THEME.magenta;
 
     this.add
-      .text(GAME_WIDTH / 2, 180, playerWon ? 'PLAYER WINS' : 'CPU WINS', displayTextStyle({
-        color: accentColor,
-        fontSize: '58px',
-        fontStyle: '700',
-      }))
+      .text(
+        GAME_WIDTH / 2,
+        180,
+        playerWon ? 'PLAYER WINS' : 'CPU WINS',
+        displayTextStyle({
+          color: accentColor,
+          fontSize: '58px',
+          fontStyle: '700',
+        }),
+      )
       .setOrigin(0.5)
       .setShadow(0, 0, accentColor, 18, true, true);
 

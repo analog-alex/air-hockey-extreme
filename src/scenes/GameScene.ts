@@ -7,7 +7,7 @@ import { Puck } from '../objects/Puck';
 import { Table } from '../objects/Table';
 import { CpuController } from '../systems/CpuController';
 import { InputSystem } from '../systems/InputSystem';
-import { ScoreSystem, ScoringSide } from '../systems/ScoreSystem';
+import { ScoreSystem, type ScoringSide } from '../systems/ScoreSystem';
 import { BoostHud } from '../ui/BoostHud';
 import { createControlsHint } from '../ui/commandHint';
 import { PauseOverlay } from '../ui/PauseOverlay';
@@ -49,7 +49,12 @@ export class GameScene extends Phaser.Scene {
     this.table.draw();
     this.table.createWalls();
 
-    this.player = new Paddle(this, RINK.x + GAMEPLAY.paddleHomeInset, RINK.y + RINK.height / 2, 'player');
+    this.player = new Paddle(
+      this,
+      RINK.x + GAMEPLAY.paddleHomeInset,
+      RINK.y + RINK.height / 2,
+      'player',
+    );
     this.cpu = new Paddle(
       this,
       RINK.x + RINK.width - GAMEPLAY.paddleHomeInset,
@@ -62,11 +67,16 @@ export class GameScene extends Phaser.Scene {
     this.cpuController = new CpuController(this.cpu, this.puck);
 
     this.scoreText = this.add
-      .text(GAME_WIDTH / 2, 30, '0  :  0', displayTextStyle({
-        color: THEME.textPrimary,
-        fontSize: '34px',
-        fontStyle: '700',
-      }))
+      .text(
+        GAME_WIDTH / 2,
+        30,
+        '0  :  0',
+        displayTextStyle({
+          color: THEME.textPrimary,
+          fontSize: '34px',
+          fontStyle: '700',
+        }),
+      )
       .setOrigin(0.5)
       .setDepth(60);
 
@@ -106,9 +116,8 @@ export class GameScene extends Phaser.Scene {
       this.inputSystem.hasMovementInput(),
     );
 
-    const playerSpeed = GAMEPLAY.playerSpeed * (
-      this.boostHud.boosting ? GAMEPLAY.playerBoostSpeedMultiplier : 1
-    );
+    const playerSpeed =
+      GAMEPLAY.playerSpeed * (this.boostHud.boosting ? GAMEPLAY.playerBoostSpeedMultiplier : 1);
     this.inputSystem.updatePlayer(this.player, playerSpeed);
     this.cpuController.update(deltaSeconds);
     this.player.constrainToHalf();

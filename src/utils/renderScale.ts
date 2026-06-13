@@ -8,8 +8,8 @@ export const RENDER_SCALE = isTouchFirstDevice()
 
 export function applyRenderScale(scene: Phaser.Scene): void {
   const configureCamera = (): void => {
-    const scrollX = -GAME_WIDTH * (RENDER_SCALE - 1) / 2;
-    const scrollY = -GAME_HEIGHT * (RENDER_SCALE - 1) / 2;
+    const scrollX = (-GAME_WIDTH * (RENDER_SCALE - 1)) / 2;
+    const scrollY = (-GAME_HEIGHT * (RENDER_SCALE - 1)) / 2;
 
     scene.cameras.main
       .setViewport(0, 0, GAME_WIDTH * RENDER_SCALE, GAME_HEIGHT * RENDER_SCALE)

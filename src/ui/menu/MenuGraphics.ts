@@ -1,9 +1,9 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 import { COLORS } from '../../constants/colors';
 import { GAME_HEIGHT, GAME_WIDTH } from '../../constants/gameplay';
 import { THEME } from '../../constants/theme';
-import { displayTextStyle, textStyle } from '../text';
 import { drawChevrons, fillBeveledRect, strokeBeveledRect } from '../graphics/beveledRect';
+import { displayTextStyle, textStyle } from '../text';
 
 const PANEL = {
   x: GAME_WIDTH / 2,
@@ -29,7 +29,16 @@ export function drawArenaTreatment(scene: Phaser.Scene): void {
     .setDepth(-1);
 
   const atmosphere = scene.add.graphics().setDepth(0);
-  atmosphere.fillGradientStyle(COLORS.cyan, COLORS.cyan, COLORS.blue, COLORS.blue, 0.13, 0.13, 0, 0);
+  atmosphere.fillGradientStyle(
+    COLORS.cyan,
+    COLORS.cyan,
+    COLORS.blue,
+    COLORS.blue,
+    0.13,
+    0.13,
+    0,
+    0,
+  );
   atmosphere.fillRect(90, 34, 1100, 82);
   atmosphere.fillGradientStyle(COLORS.red, 0x000000, COLORS.red, 0x000000, 0.12, 0, 0.1, 0);
   atmosphere.fillRect(92, 112, 1096, 530);
@@ -58,15 +67,18 @@ export function drawTitle(scene: Phaser.Scene): void {
     shadow: { color: 'transparent', blur: 0, fill: false, offsetX: 0, offsetY: 0, stroke: false },
   });
 
-  scene.add.text(GAME_WIDTH / 2 - 4, 143, 'GLIDE.EXE', { ...titleStyle, color: THEME.red })
+  scene.add
+    .text(GAME_WIDTH / 2 - 4, 143, 'GLIDE.EXE', { ...titleStyle, color: THEME.red })
     .setOrigin(0.5)
     .setAlpha(0.5)
     .setDepth(1);
-  scene.add.text(GAME_WIDTH / 2 + 4, 139, 'GLIDE.EXE', { ...titleStyle, color: THEME.cyan })
+  scene.add
+    .text(GAME_WIDTH / 2 + 4, 139, 'GLIDE.EXE', { ...titleStyle, color: THEME.cyan })
     .setOrigin(0.5)
     .setAlpha(0.62)
     .setDepth(1);
-  scene.add.text(GAME_WIDTH / 2, 140, 'GLIDE.EXE', { ...titleStyle, color: THEME.textPrimary })
+  scene.add
+    .text(GAME_WIDTH / 2, 140, 'GLIDE.EXE', { ...titleStyle, color: THEME.textPrimary })
     .setOrigin(0.5)
     .setDepth(2)
     .setShadow(0, 0, THEME.cyan, 20, true, true);
@@ -80,13 +92,18 @@ export function drawTitle(scene: Phaser.Scene): void {
   });
 
   scene.add
-    .text(GAME_WIDTH / 2, 224, 'A I R   H O C K E Y', textStyle({
-      color: THEME.cyanBright,
-      fontSize: '19px',
-      fontStyle: 'bold italic',
-      letterSpacing: 5,
-      strokeThickness: 2,
-    }))
+    .text(
+      GAME_WIDTH / 2,
+      224,
+      'A I R   H O C K E Y',
+      textStyle({
+        color: THEME.cyanBright,
+        fontSize: '19px',
+        fontStyle: 'bold italic',
+        letterSpacing: 5,
+        strokeThickness: 2,
+      }),
+    )
     .setOrigin(0.5)
     .setDepth(2)
     .setShadow(0, 0, THEME.cyan, 8, true, true);
@@ -106,13 +123,27 @@ export function drawMenuPanel(scene: Phaser.Scene): void {
   const top = PANEL.y - PANEL.height / 2;
 
   glass.fillStyle(COLORS.cyan, 0.1);
-  fillBeveledRect(glass, left - 12, top - 12, PANEL.width + 24, PANEL.height + 24, PANEL.bevel + 10);
+  fillBeveledRect(
+    glass,
+    left - 12,
+    top - 12,
+    PANEL.width + 24,
+    PANEL.height + 24,
+    PANEL.bevel + 10,
+  );
   glass.fillStyle(COLORS.darkPanel, 0.96);
   fillBeveledRect(glass, left, top, PANEL.width, PANEL.height, PANEL.bevel);
   glass.lineStyle(2, COLORS.cyan, 0.98);
   strokeBeveledRect(glass, left + 7, top + 7, PANEL.width - 14, PANEL.height - 14, PANEL.bevel - 5);
   glass.lineStyle(1, COLORS.blue, 0.62);
-  strokeBeveledRect(glass, left + 18, top + 18, PANEL.width - 36, PANEL.height - 36, PANEL.bevel - 14);
+  strokeBeveledRect(
+    glass,
+    left + 18,
+    top + 18,
+    PANEL.width - 36,
+    PANEL.height - 36,
+    PANEL.bevel - 14,
+  );
 
   glass.lineStyle(1, COLORS.cyan, 0.45);
   glass.lineBetween(PANEL.x - 268, 426, PANEL.x - 66, 426);
@@ -121,13 +152,21 @@ export function drawMenuPanel(scene: Phaser.Scene): void {
   glass.fillCircle(PANEL.x - 58, 426, 2);
   glass.fillCircle(PANEL.x + 58, 426, 2);
 
-  scene.add.text(PANEL.x, 426, 'CONTROLS', textStyle({
-    color: THEME.cyan,
-    fontSize: '16px',
-    fontStyle: 'bold italic',
-    letterSpacing: 4,
-    strokeThickness: 2,
-  })).setOrigin(0.5).setDepth(4);
+  scene.add
+    .text(
+      PANEL.x,
+      426,
+      'CONTROLS',
+      textStyle({
+        color: THEME.cyan,
+        fontSize: '16px',
+        fontStyle: 'bold italic',
+        letterSpacing: 4,
+        strokeThickness: 2,
+      }),
+    )
+    .setOrigin(0.5)
+    .setDepth(4);
 }
 
 export function drawStartButton(button: Phaser.GameObjects.Graphics, isHover: boolean): void {
@@ -138,13 +177,34 @@ export function drawStartButton(button: Phaser.GameObjects.Graphics, isHover: bo
 
   button.clear();
   button.fillStyle(glow, isHover ? 0.24 : 0.14);
-  fillBeveledRect(button, left - 12, top - 12, START_BUTTON.width + 24, START_BUTTON.height + 24, START_BUTTON.bevel + 8);
+  fillBeveledRect(
+    button,
+    left - 12,
+    top - 12,
+    START_BUTTON.width + 24,
+    START_BUTTON.height + 24,
+    START_BUTTON.bevel + 8,
+  );
   button.fillStyle(fill, 0.98);
   fillBeveledRect(button, left, top, START_BUTTON.width, START_BUTTON.height, START_BUTTON.bevel);
   button.lineStyle(2, COLORS.lightCyan, 0.84);
-  strokeBeveledRect(button, left + 8, top + 8, START_BUTTON.width - 16, START_BUTTON.height - 16, START_BUTTON.bevel - 8);
+  strokeBeveledRect(
+    button,
+    left + 8,
+    top + 8,
+    START_BUTTON.width - 16,
+    START_BUTTON.height - 16,
+    START_BUTTON.bevel - 8,
+  );
   button.lineStyle(3, COLORS.cyan, isHover ? 1 : 0.92);
-  strokeBeveledRect(button, left - 1, top - 1, START_BUTTON.width + 2, START_BUTTON.height + 2, START_BUTTON.bevel + 2);
+  strokeBeveledRect(
+    button,
+    left - 1,
+    top - 1,
+    START_BUTTON.width + 2,
+    START_BUTTON.height + 2,
+    START_BUTTON.bevel + 2,
+  );
 
   button.lineStyle(2, COLORS.cyan, isHover ? 1 : 0.8);
   drawChevrons(button, left + 62, START_BUTTON.y, 1);
@@ -195,43 +255,54 @@ function addControlCard(
   const textX = left + 126;
 
   scene.add
-    .text(textX, y - 12, title, textStyle({
-      color: THEME.textPrimary,
-      fontSize: '23px',
-      fontStyle: 'bold',
-      letterSpacing: 2,
-      strokeThickness: 4,
-    }))
+    .text(
+      textX,
+      y - 12,
+      title,
+      textStyle({
+        color: THEME.textPrimary,
+        fontSize: '23px',
+        fontStyle: 'bold',
+        letterSpacing: 2,
+        strokeThickness: 4,
+      }),
+    )
     .setOrigin(0, 0.5)
     .setDepth(4);
 
   scene.add
-    .text(textX, y + 22, subtitle, textStyle({
-      color: icon === 'boost' ? THEME.cyan : THEME.textPale,
-      fontSize: '14px',
-      fontStyle: icon === 'boost' ? 'bold' : '',
-      letterSpacing: 2,
-      strokeThickness: 3,
-    }))
+    .text(
+      textX,
+      y + 22,
+      subtitle,
+      textStyle({
+        color: icon === 'boost' ? THEME.cyan : THEME.textPale,
+        fontSize: '14px',
+        fontStyle: icon === 'boost' ? 'bold' : '',
+        letterSpacing: 2,
+        strokeThickness: 3,
+      }),
+    )
     .setOrigin(0, 0.5)
     .setDepth(4);
 }
 
 function addWinConditionFooter(scene: Phaser.Scene): void {
+  scene.add.rectangle(PANEL.x - 176, 650, 92, 1, COLORS.cyan, 0.62).setDepth(4);
+  scene.add.rectangle(PANEL.x + 176, 650, 92, 1, COLORS.cyan, 0.62).setDepth(4);
   scene.add
-    .rectangle(PANEL.x - 176, 650, 92, 1, COLORS.cyan, 0.62)
-    .setDepth(4);
-  scene.add
-    .rectangle(PANEL.x + 176, 650, 92, 1, COLORS.cyan, 0.62)
-    .setDepth(4);
-  scene.add
-    .text(PANEL.x, 648, 'FIRST TO  7  WINS', textStyle({
-      color: THEME.textPale,
-      fontSize: '17px',
-      fontStyle: 'bold italic',
-      letterSpacing: 3,
-      strokeThickness: 3,
-    }))
+    .text(
+      PANEL.x,
+      648,
+      'FIRST TO  7  WINS',
+      textStyle({
+        color: THEME.textPale,
+        fontSize: '17px',
+        fontStyle: 'bold italic',
+        letterSpacing: 3,
+        strokeThickness: 3,
+      }),
+    )
     .setOrigin(0.5)
     .setDepth(4);
 }
@@ -321,12 +392,17 @@ function addKeycap(scene: Phaser.Scene, x: number, y: number, label: string): vo
 
   if (label.length > 0) {
     scene.add
-      .text(x, y, label, textStyle({
-        color: THEME.textPrimary,
-        fontSize: '12px',
-        fontStyle: 'bold',
-        strokeThickness: 2,
-      }))
+      .text(
+        x,
+        y,
+        label,
+        textStyle({
+          color: THEME.textPrimary,
+          fontSize: '12px',
+          fontStyle: 'bold',
+          strokeThickness: 2,
+        }),
+      )
       .setOrigin(0.5)
       .setDepth(5);
   }
@@ -334,22 +410,27 @@ function addKeycap(scene: Phaser.Scene, x: number, y: number, label: string): vo
 
 export function createStartButtonLabel(scene: Phaser.Scene): void {
   scene.add
-    .text(START_BUTTON.x, START_BUTTON.y, 'START GAME', displayTextStyle({
-      color: THEME.textPrimary,
-      fontSize: '40px',
-      fontStyle: '700 italic',
-      letterSpacing: 8,
-      shadow: {
-        color: THEME.cyan,
-        blur: 12,
-        fill: true,
-        offsetX: 0,
-        offsetY: 0,
-        stroke: true,
-      },
-      stroke: THEME.titleStroke,
-      strokeThickness: 5,
-    }))
+    .text(
+      START_BUTTON.x,
+      START_BUTTON.y,
+      'START GAME',
+      displayTextStyle({
+        color: THEME.textPrimary,
+        fontSize: '40px',
+        fontStyle: '700 italic',
+        letterSpacing: 8,
+        shadow: {
+          color: THEME.cyan,
+          blur: 12,
+          fill: true,
+          offsetX: 0,
+          offsetY: 0,
+          stroke: true,
+        },
+        stroke: THEME.titleStroke,
+        strokeThickness: 5,
+      }),
+    )
     .setOrigin(0.5)
     .setDepth(4);
 }

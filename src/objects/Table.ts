@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 import { COLORS } from '../constants/colors';
 import { GAME_HEIGHT, GAME_WIDTH, RINK, TABLE } from '../constants/gameplay';
 
@@ -53,7 +53,13 @@ export class Table {
       WALL_THICKNESS,
       WALL_OPTIONS,
     );
-    this.scene.matter.add.rectangle(leftX, RINK.y + sideYInset, WALL_THICKNESS, sideSegmentHeight, WALL_OPTIONS);
+    this.scene.matter.add.rectangle(
+      leftX,
+      RINK.y + sideYInset,
+      WALL_THICKNESS,
+      sideSegmentHeight,
+      WALL_OPTIONS,
+    );
     this.scene.matter.add.rectangle(
       leftX,
       RINK.y + RINK.height - sideYInset,
@@ -61,7 +67,13 @@ export class Table {
       sideSegmentHeight,
       WALL_OPTIONS,
     );
-    this.scene.matter.add.rectangle(rightX, RINK.y + sideYInset, WALL_THICKNESS, sideSegmentHeight, WALL_OPTIONS);
+    this.scene.matter.add.rectangle(
+      rightX,
+      RINK.y + sideYInset,
+      WALL_THICKNESS,
+      sideSegmentHeight,
+      WALL_OPTIONS,
+    );
     this.scene.matter.add.rectangle(
       rightX,
       RINK.y + RINK.height - sideYInset,
@@ -72,7 +84,8 @@ export class Table {
   }
 
   pulseGoal(side: 'left' | 'right'): void {
-    const x = side === 'left' ? RINK.x + RINK.goalLineInset : RINK.x + RINK.width - RINK.goalLineInset;
+    const x =
+      side === 'left' ? RINK.x + RINK.goalLineInset : RINK.x + RINK.width - RINK.goalLineInset;
     const pulse = this.scene.add
       .rectangle(
         x,

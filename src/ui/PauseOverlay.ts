@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 import { COLORS } from '../constants/colors';
 import { GAME_HEIGHT, GAME_WIDTH } from '../constants/gameplay';
 import { THEME } from '../constants/theme';
@@ -23,11 +23,16 @@ export class PauseOverlay {
       .setInteractive();
 
     const pausedText = scene.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 72, 'PAUSED', displayTextStyle({
-        color: THEME.textPrimary,
-        fontSize: '58px',
-        fontStyle: '700',
-      }))
+      .text(
+        GAME_WIDTH / 2,
+        GAME_HEIGHT / 2 - 72,
+        'PAUSED',
+        displayTextStyle({
+          color: THEME.textPrimary,
+          fontSize: '58px',
+          fontStyle: '700',
+        }),
+      )
       .setOrigin(0.5);
 
     const restartY = usesTouchControls ? GAME_HEIGHT / 2 + 72 : GAME_HEIGHT / 2 + 24;

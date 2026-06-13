@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 import { THEME } from '../constants/theme';
 
 export const DISPLAY_FONT = '"Oxanium", sans-serif';

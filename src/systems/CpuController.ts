@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { GAMEPLAY, RINK } from '../constants/gameplay';
-import { Paddle } from '../objects/Paddle';
-import { Puck } from '../objects/Puck';
+import type { Paddle } from '../objects/Paddle';
+import type { Puck } from '../objects/Puck';
 
 type CpuState = 'guard' | 'intercept' | 'counter' | 'recover';
 
@@ -22,7 +22,7 @@ export class CpuController {
     this.state = this.pickState();
 
     const target = this.getTargetForState();
-    const lerpAmount = 1 - Math.pow(GAMEPLAY.cpuReaction, deltaSeconds * 8);
+    const lerpAmount = 1 - GAMEPLAY.cpuReaction ** (deltaSeconds * 8);
 
     this.targetX = Phaser.Math.Linear(this.targetX, target.x, lerpAmount);
     this.targetY = Phaser.Math.Linear(this.targetY, target.y, lerpAmount);
@@ -55,7 +55,11 @@ export class CpuController {
       this.puck.y,
     );
 
-    if (puckInCpuHalf && this.puck.isSlowEnoughForCpuAttack() && distanceToPuck <= GAMEPLAY.cpuAttackRadius) {
+    if (
+      puckInCpuHalf &&
+      this.puck.isSlowEnoughForCpuAttack() &&
+      distanceToPuck <= GAMEPLAY.cpuAttackRadius
+    ) {
       return 'counter';
     }
 
@@ -91,7 +95,6 @@ export class CpuController {
           y: RINK.y + RINK.height / 2 + this.aimError * 0.5,
           speed: GAMEPLAY.cpuGuardSpeed,
         };
-      case 'guard':
       default:
         return {
           x: RINK.x + RINK.width - GAMEPLAY.cpuGuardOffset,

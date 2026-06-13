@@ -17,10 +17,15 @@ export class PreloadScene extends Phaser.Scene {
     applyRenderScale(this);
 
     this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'LOADING GLIDE.EXE', textStyle({
-        color: THEME.textPrimary,
-        fontSize: '28px',
-      }))
+      .text(
+        GAME_WIDTH / 2,
+        GAME_HEIGHT / 2,
+        'LOADING GLIDE.EXE',
+        textStyle({
+          color: THEME.textPrimary,
+          fontSize: '28px',
+        }),
+      )
       .setOrigin(0.5);
 
     const bar = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 48, 360, 8, COLORS.cyan, 0.2);

@@ -9,6 +9,9 @@ GLIDE.EXE is a browser-based arcade air hockey prototype built with Bun, Phaser,
 - Install dependencies: `bun install`
 - Run locally: `bun run dev`
 - Typecheck: `bun run typecheck`
+- Lint (Biome): `bun run lint`
+- Lint and apply safe fixes: `bun run lint:fix`
+- Format: `bun run format`
 - Production build: `bun run build`
 - Preview build: `bun run preview`
 
@@ -50,6 +53,7 @@ Before handing off gameplay changes, run:
 
 ```sh
 bun run typecheck
+bun run lint
 bun run build
 ```
 

@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 import { createCyanButton } from './cyanButton';
 
 export type TouchActionBarCallbacks = {
@@ -6,7 +6,10 @@ export type TouchActionBarCallbacks = {
   onPause: () => void;
 };
 
-export function createTouchActionBar(scene: Phaser.Scene, callbacks: TouchActionBarCallbacks): void {
+export function createTouchActionBar(
+  scene: Phaser.Scene,
+  callbacks: TouchActionBarCallbacks,
+): void {
   const tilt = createCyanButton(scene, 1002, 30, 'TILT', {
     fontSize: '18px',
     padding: { x: 20, y: 10 },
