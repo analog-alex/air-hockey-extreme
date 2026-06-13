@@ -7,8 +7,9 @@ import { Table } from '../objects/Table';
 import { CpuController } from '../systems/CpuController';
 import { InputSystem } from '../systems/InputSystem';
 import { ScoreSystem, ScoringSide } from '../systems/ScoreSystem';
-import { textStyle } from '../ui/text';
+import { displayTextStyle, textStyle } from '../ui/text';
 import { isTouchFirstDevice } from '../utils/device';
+import { applyRenderScale } from '../utils/renderScale';
 
 export class GameScene extends Phaser.Scene {
   private player!: Paddle;
@@ -35,6 +36,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    applyRenderScale(this);
+
     this.isPaused = false;
     this.isResetting = false;
     this.tiltCooldown = 0;
@@ -61,24 +64,15 @@ export class GameScene extends Phaser.Scene {
     this.cpuController = new CpuController(this.cpu, this.puck);
 
     this.scoreText = this.add
-      .text(GAME_WIDTH / 2, 30, '0  :  0', textStyle({
+      .text(GAME_WIDTH / 2, 30, '0  :  0', displayTextStyle({
         color: '#f8fbff',
         fontSize: '34px',
-        fontStyle: 'bold',
+        fontStyle: '700',
       }))
       .setOrigin(0.5)
       .setDepth(60);
 
-    const controlsHint = this.usesTouchControls
-      ? 'DRAG TO MOVE   FLICK FAST TO BOOST'
-      : 'ESC PAUSE   T TILT   SPACE BOOST';
-    this.add
-      .text(58, 30, controlsHint, textStyle({
-        color: '#9fb8c9',
-        fontSize: '16px',
-      }))
-      .setOrigin(0, 0.5)
-      .setDepth(60);
+    this.createControlsHint();
 
     this.add
       .text(58, 58, 'BOOST', textStyle({ color: '#d8f8ff', fontSize: '14px', fontStyle: 'bold' }))
@@ -108,6 +102,59 @@ export class GameScene extends Phaser.Scene {
     keyboard?.on('keydown-ESC', () => this.togglePause());
     keyboard?.on('keydown-T', () => this.tryTiltRink());
     this.puck.serve(Phaser.Math.RND.pick([1, -1]));
+  }
+
+  private createControlsHint(): void {
+    const commands = this.usesTouchControls
+      ? [
+          { key: 'DRAG', action: 'MOVE', width: 124 },
+          { key: 'FLICK', action: 'BOOST', width: 138 },
+        ]
+      : [
+          { key: 'ESC', action: 'PAUSE', width: 116 },
+          { key: 'T', action: 'TILT', width: 88 },
+          { key: 'SPACE', action: 'BOOST', width: 148 },
+        ];
+
+    let x = 58;
+    commands.forEach(({ key, action, width }) => {
+      this.createCommandHint(x, 30, key, action);
+      x += width;
+    });
+  }
+
+  private createCommandHint(x: number, y: number, key: string, action: string): void {
+    const keyWidth = Math.max(30, key.length * 10 + 16);
+    const keycap = this.add.graphics().setDepth(60);
+
+    keycap.fillStyle(COLORS.darkPanel, 0.94);
+    keycap.fillRoundedRect(x, y - 12, keyWidth, 24, 5);
+    keycap.lineStyle(1, COLORS.cyan, 0.82);
+    keycap.strokeRoundedRect(x, y - 12, keyWidth, 24, 5);
+    keycap.lineStyle(1, COLORS.lightCyan, 0.24);
+    keycap.lineBetween(x + 6, y + 8, x + keyWidth - 6, y + 8);
+
+    this.add
+      .text(x + keyWidth / 2, y, key, textStyle({
+        color: '#f8fbff',
+        fontSize: '14px',
+        fontStyle: 'bold',
+        letterSpacing: 1,
+        strokeThickness: 2,
+      }))
+      .setOrigin(0.5)
+      .setDepth(61);
+
+    this.add
+      .text(x + keyWidth + 9, y, action, textStyle({
+        color: '#9fb8c9',
+        fontSize: '14px',
+        fontStyle: 'bold',
+        letterSpacing: 1,
+        strokeThickness: 2,
+      }))
+      .setOrigin(0, 0.5)
+      .setDepth(60);
   }
 
   update(_time: number, delta: number): void {
@@ -211,10 +258,10 @@ export class GameScene extends Phaser.Scene {
       .setInteractive();
 
     const pausedText = this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 72, 'PAUSED', textStyle({
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 72, 'PAUSED', displayTextStyle({
         color: '#f8fbff',
         fontSize: '58px',
-        fontStyle: 'bold',
+        fontStyle: '700',
       }))
       .setOrigin(0.5);
 
@@ -252,11 +299,21 @@ export class GameScene extends Phaser.Scene {
 
   private makePauseButton(x: number, y: number, label: string): Phaser.GameObjects.Text {
     const button = this.add
-      .text(x, y, label, textStyle({
+      .text(x, y, label, displayTextStyle({
         color: '#030509',
         backgroundColor: '#00e5ff',
         fontSize: '25px',
+        fontStyle: '700',
         padding: { x: 28, y: 12 },
+        shadow: {
+          color: 'transparent',
+          blur: 0,
+          fill: false,
+          offsetX: 0,
+          offsetY: 0,
+          stroke: false,
+        },
+        strokeThickness: 0,
       }))
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });

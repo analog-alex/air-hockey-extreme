@@ -5,6 +5,7 @@ import rinkUrl from '../../assets/rink.png?url';
 import { COLORS } from '../constants/colors';
 import { GAME_HEIGHT, GAME_WIDTH } from '../constants/gameplay';
 import { textStyle } from '../ui/text';
+import { applyRenderScale } from '../utils/renderScale';
 
 export class PreloadScene extends Phaser.Scene {
   constructor() {
@@ -12,6 +13,8 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload(): void {
+    applyRenderScale(this);
+
     this.add
       .text(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'LOADING GLIDE.EXE', textStyle({
         color: '#f8fbff',
