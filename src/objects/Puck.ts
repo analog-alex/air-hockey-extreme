@@ -38,7 +38,11 @@ export class Puck extends Phaser.Physics.Matter.Image {
     this.setVelocity(0, 0);
   }
 
-  bounceFromPaddle(paddle: Phaser.Physics.Matter.Image, toward: 1 | -1): void {
+  bounceFromPaddle(
+    paddle: Phaser.Physics.Matter.Image,
+    toward: 1 | -1,
+    useBoostMomentum = false,
+  ): void {
     const velocity = this.getVelocity();
     const paddleVelocity = paddle.getVelocity();
     const currentSpeed = this.toGameplaySpeed(Math.hypot(velocity.x, velocity.y));
@@ -56,10 +60,17 @@ export class Puck extends Phaser.Physics.Matter.Image {
     );
 
     const angle = Phaser.Math.Linear(-64, 64, (offset + 1) / 2);
-    const vx = Math.cos(Phaser.Math.DegToRad(angle)) * nextSpeed * toward;
-    const vy =
+    let vx = Math.cos(Phaser.Math.DegToRad(angle)) * nextSpeed * toward;
+    let vy =
       Math.sin(Phaser.Math.DegToRad(angle)) * nextSpeed +
       fromMatterVelocity(paddleVelocity.y) * GAMEPLAY.paddleMomentumInfluence;
+
+    if (useBoostMomentum) {
+      const length = Math.hypot(vx, vy);
+      vx = (vx / length) * GAMEPLAY.boostedPuckSpeed;
+      vy = (vy / length) * GAMEPLAY.boostedPuckSpeed;
+      this.maxSpeedOverrideTimer = GAMEPLAY.boostedPuckMaxSpeedSeconds;
+    }
 
     this.setScaledVelocity(vx, vy);
     this.setPosition(
@@ -78,14 +89,6 @@ export class Puck extends Phaser.Physics.Matter.Image {
     const speed = Phaser.Math.Between(GAMEPLAY.tiltMinSpeed, GAMEPLAY.tiltMaxSpeed);
 
     this.setScaledVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
-  }
-
-  flick(direction: Phaser.Types.Math.Vector2Like): void {
-    this.maxSpeedOverrideTimer = GAMEPLAY.puckFlickMaxSpeedSeconds;
-    this.setScaledVelocity(
-      direction.x * GAMEPLAY.puckFlickSpeed,
-      direction.y * GAMEPLAY.puckFlickSpeed,
-    );
   }
 
   updateMotion(deltaSeconds: number): void {

@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
-import { GAMEPLAY } from '../constants/gameplay';
 import { Paddle } from '../objects/Paddle';
 
 export class InputSystem {
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   private keys: Record<'W' | 'A' | 'S' | 'D', Phaser.Input.Keyboard.Key>;
+  private boostKey: Phaser.Input.Keyboard.Key;
 
   constructor(private readonly scene: Phaser.Scene) {
     const keyboard = scene.input.keyboard;
@@ -17,9 +17,10 @@ export class InputSystem {
       'W' | 'A' | 'S' | 'D',
       Phaser.Input.Keyboard.Key
     >;
+    this.boostKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
   }
 
-  updatePlayer(paddle: Paddle): void {
+  updatePlayer(paddle: Paddle, speed: number): void {
     const { x, y } = this.getInputVector();
     const length = Math.hypot(x, y);
 
@@ -29,23 +30,18 @@ export class InputSystem {
     }
 
     paddle.move(
-      (x / length) * GAMEPLAY.playerSpeed,
-      (y / length) * GAMEPLAY.playerSpeed,
+      (x / length) * speed,
+      (y / length) * speed,
     );
   }
 
-  getAimVector(): Phaser.Types.Math.Vector2Like {
+  hasMovementInput(): boolean {
     const { x, y } = this.getInputVector();
-    const length = Math.hypot(x, y);
+    return x !== 0 || y !== 0;
+  }
 
-    if (length === 0) {
-      return { x: 1, y: 0 };
-    }
-
-    return {
-      x: x / length,
-      y: y / length,
-    };
+  isBoostDown(): boolean {
+    return this.boostKey.isDown;
   }
 
   private getInputVector(): Phaser.Types.Math.Vector2Like {
